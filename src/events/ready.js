@@ -2,6 +2,7 @@ const { readdirSync } = require('fs');
 const { REST } = require('@discordjs/rest');
 const { Routes } = require('discord-api-types/v9');
 const Discord = require('discord.js');
+const { MessageEmbed, MessageActionRow, MessageButton } = require('discord.js');
 const mongoose = require('mongoose');
 const cronTasks = require('../utils/cronTasks');
 
@@ -100,6 +101,37 @@ module.exports = {
 
             await client.guilds.cache.get(process.env.GUILD_ID)?.commands.permissions.set({ fullPermissions });
             console.log('\u001b[37m(4/5) Komentojen oikeudet rekisteröity.');
+
+            // Handle ban channel
+            /**
+             * @type {Discord.TextChannel}
+             */
+            const banChannel = client.channels.cache.find(channel => channel.id === process.env.BAN_CHANNEL);
+            if (!banChannel) {
+                return console.log(
+                    '\u001b[37m VIRHE: Porttikielto kanavaa ei löytynyt. Täytä .env tiedoston BAN_CHANNEL oikealla kanavan ID:llä.',
+                );
+            }
+            // If channel is empty send ban embed to the channel
+            if ((await banChannel.messages.fetch()).size === 0) {
+                const banInfoEmbed = new MessageEmbed()
+                    .setColor(process.env.SUCCESS_COLOR)
+                    .setImage('https://i.stack.imgur.com/Fzh0w.png')
+                    .setAuthor(`Olet saanut porttikiellon`, client.user.displayAvatarURL())
+                    .setDescription(
+                        // eslint-disable-next-line max-len
+                        `Olet saanut porttikiellon **${banChannel.guild.name}** Discord-palvelimella. Tältä kanavalta saat tietoa porttikieltosi kestosta. Sinua ei poisteta palvelimelta porttikieltosi aikana. Kun porttikieltosi vanhenee, näet jälleen kaikki kanavat.`,
+                    )
+                    .setFooter(client.user.username, client.user.displayAvatarURL())
+                    .setTimestamp();
+                const banButtons = new MessageActionRow().addComponents(
+                    // eslint-disable-next-line newline-per-chained-call
+                    new MessageButton().setCustomId('banInfo').setLabel('Porttikielto').setStyle('DANGER'),
+                );
+
+                banChannel.send({ embeds: [banInfoEmbed], components: [banButtons] });
+            }
+
             console.log('\u001b[37m(5/5) Botti on valmiina käyttöön.');
         })();
     },
