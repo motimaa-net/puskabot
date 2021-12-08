@@ -9,18 +9,12 @@ const warnSchema = new mongoose.Schema(
         username: {
             type: String,
         },
-        userDiscriminator: {
-            type: String,
-        },
 
         authorId: {
             type: String,
             required: true,
         },
         authorName: {
-            type: String,
-        },
-        authorDiscriminator: {
             type: String,
         },
 

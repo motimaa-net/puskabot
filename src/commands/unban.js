@@ -45,7 +45,17 @@ module.exports = {
 
         member.roles.set(isBanned.roles);
 
-        await Bans.findOneAndUpdate({ userId: member.id, active: true }, { $set: { active: false } });
+        await Bans.findOneAndUpdate(
+            { userId: member.id, active: true },
+            {
+                $set: {
+                    active: false,
+                    unbannedType: 'manual',
+                    unbannedAt: new Date(),
+                    unbannedBy: interaction.user.tag,
+                },
+            },
+        );
 
         const unbanEmbed = new MessageEmbed()
             .setColor(process.env.SUCCESS_COLOR)
@@ -57,7 +67,7 @@ module.exports = {
                 { name: 'Syynä', value: `${isBanned.reason}`, inline: true },
                 {
                     name: 'Rankaisija',
-                    value: `${isBanned.authorName}#${isBanned.authorDiscriminator}`,
+                    value: `${isBanned.authorName}`,
                     inline: true,
                 },
                 {

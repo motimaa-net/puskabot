@@ -77,7 +77,7 @@ module.exports = {
             for (let x = 0; x < activeWarns.length; x++) {
                 const warn = activeWarns[x];
                 activeWarnsFormatted.push(
-                    `\`\`\`yaml\n${x + 1}: ${warn.authorName}#${warn.authorDiscriminator} varoitti syystä "${
+                    `\`\`\`yaml\n${x + 1}: ${warn.authorName} varoitti syystä "${
                         warn.reason
                     }" # (${`${timeUtils.daysAgo(warn.createdAt)}`})\`\`\``,
                 );
@@ -115,7 +115,7 @@ module.exports = {
                 },
                 {
                     name: 'Porttikiellon antaja',
-                    value: `${activeBans[0].authorName}#${activeBans[0].authorDiscriminator}`,
+                    value: `${activeBans[0].authorName}`,
                     inline: true,
                 },
                 {
@@ -134,14 +134,14 @@ module.exports = {
                 .setColor(infraction.active ? process.env.SUCCESS_COLOR : process.env.EXPIRED_COLOR)
                 .setImage('https://i.stack.imgur.com/Fzh0w.png')
                 .setAuthor(
-                    infraction?.unbanReason
+                    infraction?.roles
                         ? `Porttikielto (${index + 2}/${combinedInfractions.length + 1})`
                         : `Varoitus (${index + 2}/${combinedInfractions.length + 1})`,
                     client.user.displayAvatarURL(),
                 )
                 .setDescription(
                     `Käyttäjälle **${infraction.username}#${infraction.userDiscriminator}** on myönnetty ${
-                        infraction?.unbanReason ? 'porttikielto!' : 'varoitus!'
+                        infraction?.roles ? 'porttikielto!' : 'varoitus!'
                     }!`,
                 )
                 .setFooter(interaction.user.username, interaction.user.displayAvatarURL())
@@ -151,11 +151,11 @@ module.exports = {
                     { name: 'Syynä', value: `${infraction.reason}`, inline: true },
                     {
                         name: 'Rankaisija',
-                        value: `${infraction.authorName}#${infraction.authorDiscriminator}`,
+                        value: `${infraction.authorName}`,
                         inline: true,
                     },
                     { name: 'Annettu', value: `<t:${timeUtils.epochConverter(infraction.createdAt)}:R>`, inline: true },
-                    infraction?.unbanReason
+                    infraction?.roles
                         ? {
                               name: 'Kesto',
                               value: infraction.days ? `${infraction.days} päivää` : '**Ikuinen**',

@@ -9,9 +9,6 @@ const banSchema = new mongoose.Schema(
         username: {
             type: String,
         },
-        userDiscriminator: {
-            type: String,
-        },
 
         roles: {
             type: Array,
@@ -24,9 +21,6 @@ const banSchema = new mongoose.Schema(
             required: true,
         },
         authorName: {
-            type: String,
-        },
-        authorDiscriminator: {
             type: String,
         },
 
@@ -43,10 +37,16 @@ const banSchema = new mongoose.Schema(
             type: Date,
         },
 
-        unbanReason: {
+        unbannedType: {
+            type: String,
+            default: 'expired',
+        },
+        unbannedAt: {
+            type: Date,
+        },
+        unbannedBy: {
             type: String,
             trim: true,
-            default: 'expired',
         },
 
         active: {

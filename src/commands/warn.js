@@ -69,12 +69,10 @@ module.exports = {
 
         const newWarn = new Warns({
             userId: member.id,
-            username: member.user.username,
-            userDiscriminator: member.user.discriminator,
+            username: `${member.user.username}#${member.user.discriminator}`,
 
             authorId: interaction.user.id,
-            authorName: interaction.user.username,
-            authorDiscriminator: interaction.user.discriminator,
+            authorName: `${interaction.user.username}#${interaction.user.discriminator}`,
 
             reason,
             expiresAt: warnExpiresAt,
@@ -105,12 +103,10 @@ module.exports = {
 
             const newBan = new Bans({
                 userId: member.id,
-                username: member.user.username,
-                userDiscriminator: member.user.discriminator,
+                username: `${member.user.username}#${member.user.discriminator}`,
 
                 authorId: interaction.user.id,
-                authorName: interaction.user.username,
-                authorDiscriminator: interaction.user.discriminator,
+                authorName: `${interaction.user.username}#${interaction.user.discriminator}`,
 
                 roles: userRoles,
 
@@ -152,9 +148,9 @@ module.exports = {
                 const warn = activeWarns[x];
                 banEmbed.addField(
                     `Varoitus ${x + 1}`,
-                    `**${warn.authorName}#${warn.authorDiscriminator}** varoitti syystä: **${
-                        warn.reason
-                    }** (${`<t:${timeUtils.epochConverter(warn.createdAt)}:R>`})`,
+                    `**${warn.authorName}** varoitti syystä: **${warn.reason}** (${`<t:${timeUtils.epochConverter(
+                        warn.createdAt,
+                    )}:R>`})`,
                 );
             }
 

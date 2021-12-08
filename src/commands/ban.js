@@ -49,7 +49,7 @@ module.exports = {
             errorEmbedBase.setDescription(`Käyttäjällä **${member.user.tag}** on jo porttikielto!`).addFields([
                 { name: 'Käyttäjä', value: `${isBanned.username}#${isBanned.userDiscriminator}`, inline: true },
                 { name: 'Syynä', value: `${isBanned.reason}`, inline: true },
-                { name: 'Rankaisija', value: `${isBanned.authorName}#${isBanned.authorDiscriminator}`, inline: true },
+                { name: 'Rankaisija', value: `${isBanned.authorName}`, inline: true },
                 { name: 'Annettu', value: `<t:${timeUtils.epochConverter(isBanned.createdAt)}:R>`, inline: true },
                 {
                     name: 'Kesto',
@@ -106,12 +106,10 @@ module.exports = {
 
         const newBan = new Bans({
             userId: member.id,
-            username: member.user.username,
-            userDiscriminator: member.user.discriminator,
+            username: `${member.user.username}#${member.user.discriminator}`,
 
             authorId: interaction.user.id,
-            authorName: interaction.user.username,
-            authorDiscriminator: interaction.user.discriminator,
+            authorName: `${interaction.user.username}#${interaction.user.discriminator}`,
 
             roles: userRoles,
 
