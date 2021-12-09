@@ -140,14 +140,14 @@ module.exports = {
                     client.user.displayAvatarURL(),
                 )
                 .setDescription(
-                    `Käyttäjälle **${infraction.username}#${infraction.userDiscriminator}** on myönnetty ${
+                    `Käyttäjälle **${infraction.username}** on myönnetty ${
                         infraction?.roles ? 'porttikielto!' : 'varoitus!'
                     }!`,
                 )
                 .setFooter(interaction.user.username, interaction.user.displayAvatarURL())
                 .setTimestamp()
                 .addFields([
-                    { name: 'Käyttäjä', value: `${infraction.username}#${infraction.userDiscriminator}`, inline: true },
+                    { name: 'Käyttäjä', value: `${infraction.username}`, inline: true },
                     { name: 'Syynä', value: `${infraction.reason}`, inline: true },
                     {
                         name: 'Rankaisija',

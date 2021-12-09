@@ -47,7 +47,7 @@ module.exports = {
         const isBanned = await Bans.findOne({ userId: member.id, active: true });
         if (isBanned) {
             errorEmbedBase.setDescription(`Käyttäjällä **${member.user.tag}** on jo porttikielto!`).addFields([
-                { name: 'Käyttäjä', value: `${isBanned.username}#${isBanned.userDiscriminator}`, inline: true },
+                { name: 'Käyttäjä', value: `${isBanned.username}`, inline: true },
                 { name: 'Syynä', value: `${isBanned.reason}`, inline: true },
                 { name: 'Rankaisija', value: `${isBanned.authorName}`, inline: true },
                 { name: 'Annettu', value: `<t:${timeUtils.epochConverter(isBanned.createdAt)}:R>`, inline: true },
@@ -106,10 +106,10 @@ module.exports = {
 
         const newBan = new Bans({
             userId: member.id,
-            username: `${member.user.username}#${member.user.discriminator}`,
+            username: `${member.user.tag}`,
 
             authorId: interaction.user.id,
-            authorName: `${interaction.user.username}#${interaction.user.discriminator}`,
+            authorName: `${interaction.user.tag}`,
 
             roles: userRoles,
 
@@ -129,7 +129,7 @@ module.exports = {
                 { name: 'Syynä', value: `${reason}`, inline: true },
                 {
                     name: 'Rankaisija',
-                    value: `${interaction.user.username}#${interaction.user.discriminator}`,
+                    value: `${interaction.user.username}`,
                     inline: true,
                 },
                 { name: 'Annettu', value: `<t:${timeUtils.epochConverter(new Date())}:R>`, inline: true },

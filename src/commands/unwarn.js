@@ -82,7 +82,7 @@ module.exports = {
                 { name: 'Syynä poistolle', value: `${reason}`, inline: true },
                 {
                     name: 'Poistaja',
-                    value: `${interaction.user.username}#${interaction.user.discriminator}`,
+                    value: `${interaction.user.username}`,
                     inline: true,
                 },
                 {

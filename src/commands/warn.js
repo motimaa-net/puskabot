@@ -69,10 +69,10 @@ module.exports = {
 
         const newWarn = new Warns({
             userId: member.id,
-            username: `${member.user.username}#${member.user.discriminator}`,
+            username: `${member.user.tag}`,
 
             authorId: interaction.user.id,
-            authorName: `${interaction.user.username}#${interaction.user.discriminator}`,
+            authorName: `${interaction.user.tag}`,
 
             reason,
             expiresAt: warnExpiresAt,
@@ -103,10 +103,10 @@ module.exports = {
 
             const newBan = new Bans({
                 userId: member.id,
-                username: `${member.user.username}#${member.user.discriminator}`,
+                username: `${member.user.tag}`,
 
                 authorId: interaction.user.id,
-                authorName: `${interaction.user.username}#${interaction.user.discriminator}`,
+                authorName: `${interaction.user.tag}`,
 
                 roles: userRoles,
 
@@ -129,7 +129,7 @@ module.exports = {
                     { name: 'Syynä', value: `${process.env.WARN_THRESHOLD} aktiivista varoitusta`, inline: true },
                     {
                         name: 'Rankaisija',
-                        value: `${interaction.user.username}#${interaction.user.discriminator}`,
+                        value: `${interaction.user.username}`,
                         inline: true,
                     },
                     { name: 'Annettu', value: `<t:${timeUtils.epochConverter(new Date())}:R>`, inline: true },
@@ -184,7 +184,7 @@ module.exports = {
                 { name: 'Syynä', value: `${reason}`, inline: true },
                 {
                     name: 'Rankaisija',
-                    value: `${interaction.user.username}#${interaction.user.discriminator}`,
+                    value: `${interaction.user.username}`,
                     inline: true,
                 },
                 { name: 'Annettu', value: `<t:${timeUtils.epochConverter(new Date())}:R>`, inline: true },

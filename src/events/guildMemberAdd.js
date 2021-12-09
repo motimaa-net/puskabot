@@ -20,8 +20,7 @@ module.exports = {
                 {
                     $set: {
                         userId: user.id,
-                        username: user.username,
-                        userDiscriminator: user.discriminator,
+                        username: user.tag,
                     },
                 },
             );
