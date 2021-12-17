@@ -71,6 +71,8 @@ EXPIRED_COLOR = #FFFF55
 BAN_ROLE = BanRoleID
 BAN_CHANNEL = BanChannelID
 
+MUTE_ROLE = MuteRoleID
+
 WARN_EXPIRES = 7
 WARN_THRESHOLD = 4
 WARN_BAN_DAYS = 30
@@ -86,7 +88,7 @@ Once done, launch the bot using the command `node bot.js` or `nodemon bot.js`. I
 
 Moticord is in a continuous state of development. New features/updates may come at any time. Some pending ideas are:
 
--   Mute + unmute commands
+-   Nothing atm? Ideas?
 
 ## License
 

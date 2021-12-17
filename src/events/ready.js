@@ -1,7 +1,7 @@
 const { readdirSync } = require('fs');
 const { REST } = require('@discordjs/rest');
 const { Routes } = require('discord-api-types/v9');
-const { MessageEmbed, MessageActionRow, MessageButton, Client, TextChannel } = require('discord.js');
+const { MessageEmbed, MessageActionRow, MessageButton, Client, TextChannel, Permissions } = require('discord.js');
 const mongoose = require('mongoose');
 const cronTasks = require('../utils/cronTasks');
 
@@ -69,7 +69,7 @@ module.exports = {
 
             // Users with MANAGE_MESSAGES permission are able to use all commannds
             (await client.guilds.cache.get(process.env.GUILD_ID).members.fetch())
-                .filter(member => member.permissions.has('MANAGE_MESSAGES'))
+                .filter(member => member.permissions.has(Permissions.FLAGS.MANAGE_MESSAGES))
                 .forEach(member => {
                     staffIdList.push(member.id);
                 });
@@ -131,6 +131,7 @@ module.exports = {
             cronTasks.precenceUpdater(client);
             cronTasks.banHandler(client);
             cronTasks.warnHandler(client);
+            cronTasks.muteHandler(client);
         })();
     },
 };

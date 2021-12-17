@@ -1,6 +1,7 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { MessageEmbed, Client, Interaction, GuildMember } = require('discord.js');
 const Bans = require('../models/banModel');
+const Mutes = require('../models/muteModel');
 const Warns = require('../models/warnModel');
 const paginationHandler = require('../utils/paginationHandler');
 const timeUtils = require('../utils/timeUtils');
@@ -43,18 +44,31 @@ module.exports = {
             .setFooter(interaction.user.username, interaction.user.displayAvatarURL())
             .setTimestamp();
 
-        const totalBans = await Bans.find({ userId: member.id });
-        const totalWarns = await Warns.find({ userId: member.id });
+        const infractionTypes = ['porttikielto', 'varoitus', 'mykistys'];
 
+        const totalBans = (await Bans.find({ userId: member.id }).lean())?.map(item =>
+            Object.assign({}, item, { type: infractionTypes[0] }),
+        );
+        const totalWarns = (await Warns.find({ userId: member.id }).lean())?.map(item =>
+            Object.assign({}, item, { type: infractionTypes[1] }),
+        );
+        const totalMutes = (await Mutes.find({ userId: member.id }).lean())?.map(item =>
+            Object.assign({}, item, { type: infractionTypes[2] }),
+        );
         const activeBans = totalBans.filter(ban => ban.active);
         const activeWarns = totalWarns.filter(warn => warn.active);
-        if ((!totalBans && !totalWarns) || (totalBans.length === 0 && totalWarns.length === 0)) {
+        const activeMutes = totalMutes.filter(mute => mute.active);
+
+        if (
+            (!totalBans && !totalWarns && !totalMutes) ||
+            (totalBans.length === 0 && totalWarns.length === 0 && totalMutes.length === 0)
+        ) {
             const errorEmbed = errorEmbedBase.setDescription('Käyttäjällä ei ole rikehistoriaa!');
             return interaction.editReply({ embeds: [errorEmbed], ephemeral: silent });
         }
 
         // Combine totalBans and totalWarns into one array and sort it by date
-        const combinedInfractions = [...totalBans, ...totalWarns];
+        const combinedInfractions = [...totalBans, ...totalWarns, ...totalMutes];
         combinedInfractions.sort((a, b) => b.createdAt - a.createdAt);
 
         const historyEmbed = new MessageEmbed()
@@ -91,6 +105,28 @@ module.exports = {
             historyEmbed.addField('Aktiiviset varoitukset', `${activeWarnsFormatted.join('')}`, false);
         }
 
+        // Mute fields
+        historyEmbed.addFields([
+            {
+                name: 'Mykistyksiä yhteensä',
+                value: `${totalBans.length}`,
+                inline: true,
+            },
+            {
+                name: 'Aktiivinen mykistys',
+                value: `${
+                    activeMutes.length > 0
+                        ? activeMutes[0]?.length
+                            ? `Kyllä (_${activeMutes[0].length} päivää_)`
+                            : '__Ikuinen__'
+                        : 'Ei'
+                }`,
+                inline: true,
+            },
+            { name: '\u200B', value: `\u200B`, inline: true },
+        ]);
+
+        // Ban fields
         historyEmbed.addFields([
             {
                 name: 'Porttikieltoja yhteensä',
@@ -131,7 +167,6 @@ module.exports = {
                 },
             ]);
         }
-
         const infinfractionsEmbeds = [];
         infinfractionsEmbeds.push(historyEmbed);
 
@@ -140,14 +175,14 @@ module.exports = {
                 .setColor(infraction.active ? process.env.SUCCESS_COLOR : process.env.EXPIRED_COLOR)
                 .setImage('https://i.stack.imgur.com/Fzh0w.png')
                 .setAuthor(
-                    infraction?.roles
-                        ? `Porttikielto (${index + 2}/${combinedInfractions.length + 1})`
-                        : `Varoitus (${index + 2}/${combinedInfractions.length + 1})`,
+                    `${infraction.type.charAt(0).toUpperCase() + infraction.type.substring(1)} (${index + 2}/${
+                        combinedInfractions.length + 1
+                    })`,
                     client.user.displayAvatarURL(),
                 )
                 .setDescription(
                     `Käyttäjälle **${infraction.username}** on myönnetty ${
-                        infraction?.roles ? 'porttikielto!' : 'varoitus!'
+                        infraction.type.charAt(0).toUpperCase() + infraction.type.substring(1)
                     }!`,
                 )
                 .setFooter(interaction.user.username, interaction.user.displayAvatarURL())
@@ -161,10 +196,10 @@ module.exports = {
                         inline: true,
                     },
                     { name: 'Annettu', value: `<t:${timeUtils.epochConverter(infraction.createdAt)}:R>`, inline: true },
-                    infraction?.roles
+                    infraction.type === 'porttikielto' || infraction.type === 'mykistys'
                         ? {
                               name: 'Kesto',
-                              value: infraction.days ? `${infraction.days} päivää` : '**Ikuinen**',
+                              value: infraction.length ? `${infraction.length} päivää` : '**Ikuinen**',
                               inline: true,
                           }
                         : {
@@ -172,7 +207,7 @@ module.exports = {
                               value: `${process.env.WARN_EXPIRES} päivää`,
                               inline: true,
                           },
-                    infraction.days
+                    infraction.length
                         ? {
                               name: 'Vanhenee',
                               value: `<t:${timeUtils.epochConverter(infraction.expiresAt)}:R>`,

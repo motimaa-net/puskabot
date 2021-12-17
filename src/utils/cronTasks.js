@@ -2,6 +2,7 @@ const axios = require('axios');
 const { Client } = require('discord.js');
 const cron = require('node-cron');
 const Bans = require('../models/banModel');
+const Mutes = require('../models/muteModel');
 const Warns = require('../models/warnModel');
 
 const cronTasks = {
@@ -86,6 +87,61 @@ const cronTasks = {
             // Runs every hour
             cron.schedule('0 * * * *', () => {
                 removeExpiredWarns();
+            });
+        } catch (error) {
+            console.log(error);
+        }
+    },
+    /**
+     * @description - Handles cron job for the mutes.
+     * @param {Client} client
+     */
+    muteHandler: client => {
+        const removeExpiredMutes = async () => {
+            const activeMutes = await Mutes.find({ active: true });
+            const expiredMutes = [];
+
+            for (let x = 0; x < activeMutes.length; x++) {
+                const muteToCheck = activeMutes[x];
+                if (muteToCheck.expiresAt && muteToCheck.expiresAt < Date.now()) {
+                    expiredMutes.push(muteToCheck._id);
+
+                    // Fetch the banned user and give old roles back if user is still on server + send message to user that ban has expired
+                    client.guilds.cache
+                        .get(process.env.GUILD_ID)
+                        .members.fetch(muteToCheck.userId)
+                        .then(member => {
+                            if (member) {
+                                member.roles.set(muteToCheck.roles);
+                                member
+                                    .send({
+                                        content: `Mykistyksesi on päättynyt!`,
+                                    })
+                                    .catch(e => {
+                                        if (e.code === 50007) return;
+                                        console.log(e);
+                                    });
+                            }
+                        });
+                }
+            }
+
+            // Update all expired Mutes to inactive
+            await Mutes.updateMany({ _id: { $in: expiredMutes } }, { $set: { active: false } });
+
+            if (expiredMutes.length > 0) {
+                console.log(`> ${expiredMutes.length} mykistystä vanheni ja käyttäjät voival osallistua keskusteluun.`);
+            }
+        };
+
+        // Cron task for removing expired bans
+        try {
+            // Run after startup
+            removeExpiredMutes();
+
+            // Runs every hour
+            cron.schedule('0 * * * *', () => {
+                removeExpiredMutes();
             });
         } catch (error) {
             console.log(error);
