@@ -41,12 +41,6 @@ module.exports = {
         } catch (err) {
             return console.log(err);
         }
-
-        // Call cron tasks
-        cronTasks.precenceUpdater(client);
-        cronTasks.banHandler(client);
-        cronTasks.warnHandler(client);
-
         // Get all commands
         const path = `${__dirname}/../commands`;
         const commands = [];
@@ -133,6 +127,11 @@ module.exports = {
             }
 
             console.log('\u001b[37m(5/5) Botti on valmiina käyttöön.');
+
+            // Cron tasks
+            cronTasks.precenceUpdater(client);
+            cronTasks.banHandler(client);
+            cronTasks.warnHandler(client);
         })();
     },
 };

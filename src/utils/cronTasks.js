@@ -76,7 +76,7 @@ const cronTasks = {
             }
             await Warns.updateMany({ _id: { $in: expiredWarns } }, { $set: { active: false } });
             if (expiredWarns.length > 0) {
-                console.log(`> ${expiredWarns.length} vanhentunutta varoitusta poistettu.`);
+                console.log(`=> ${expiredWarns.length} vanhentunutta varoitusta poistettu.`);
             }
         };
         try {
