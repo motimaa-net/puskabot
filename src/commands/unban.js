@@ -81,6 +81,6 @@ module.exports = {
             .setFooter(interaction.user.username, interaction.user.displayAvatarURL())
             .setTimestamp();
 
-        interaction.reply({ embeds: [unbanEmbed], ephemeral: !!silent });
+        interaction.reply({ embeds: [unbanEmbed], ephemeral: silent });
     },
 };

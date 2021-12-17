@@ -28,7 +28,7 @@ module.exports = {
         const member = interaction.options.getMember('käyttäjä');
         const silent = interaction.options.getBoolean('hiljainen');
 
-        await interaction.deferReply({ ephemeral: !!silent });
+        await interaction.deferReply({ ephemeral: silent });
 
         const errorEmbedBase = new MessageEmbed()
             .setColor(process.env.ERROR_COLOR)
@@ -44,7 +44,7 @@ module.exports = {
         const activeWarns = totalWarns.filter(warn => warn.active);
         if ((!totalBans && !totalWarns) || (totalBans.length === 0 && totalWarns.length === 0)) {
             const errorEmbed = errorEmbedBase.setDescription('Käyttäjällä ei ole rikehistoriaa!');
-            return interaction.editReply({ embeds: [errorEmbed], ephemeral: !!silent });
+            return interaction.editReply({ embeds: [errorEmbed], ephemeral: silent });
         }
 
         // Combine totalBans and totalWarns into one array and sort it by date

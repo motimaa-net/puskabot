@@ -154,7 +154,7 @@ module.exports = {
                 );
             }
 
-            interaction.reply({ embeds: [banEmbed], ephemeral: !!silent });
+            interaction.reply({ embeds: [banEmbed], ephemeral: silent });
 
             // Try notifying user about the ban
             member
@@ -207,7 +207,7 @@ module.exports = {
             .setFooter(interaction.user.username, interaction.user.displayAvatarURL())
             .setTimestamp();
 
-        await interaction.reply({ embeds: [warnEmbed], ephemeral: !!silent });
+        await interaction.reply({ embeds: [warnEmbed], ephemeral: silent });
 
         // Try notifying user about the warn
         member

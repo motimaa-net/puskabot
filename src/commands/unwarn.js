@@ -94,7 +94,7 @@ module.exports = {
             .setFooter(interaction.user.username, interaction.user.displayAvatarURL())
             .setTimestamp();
 
-        await interaction.reply({ embeds: [unwarnEmbed], ephemeral: !!silent });
+        await interaction.reply({ embeds: [unwarnEmbed], ephemeral: silent });
 
         // Try notifying user about unwarn
         member
