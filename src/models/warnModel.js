@@ -1,6 +1,6 @@
-const mongoose = require('mongoose');
+const { Schema, model } = require('mongoose');
 
-const warnSchema = new mongoose.Schema(
+const warnSchema = new Schema(
     {
         userId: {
             type: String,
@@ -37,4 +37,4 @@ const warnSchema = new mongoose.Schema(
         timestamps: true,
     },
 );
-module.exports = mongoose.model('warns', warnSchema);
+module.exports = model('warns', warnSchema);

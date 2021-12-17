@@ -1,13 +1,12 @@
-const Discord = require('discord.js');
-const { MessageEmbed } = require('discord.js');
+const { MessageEmbed, Client, Interaction } = require('discord.js');
 const Bans = require('../models/banModel');
 const timeUtils = require('../utils/timeUtils');
 module.exports = {
     name: 'interactionCreate',
     /**
      * @description Called when a new interaction is created
-     * @param {Discord.Client} client
-     * @param {Discord.Interaction} interaction
+     * @param {Client} client
+     * @param {Interaction} interaction
      * @returns {void}
      */
     async execute(client, interaction) {

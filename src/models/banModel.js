@@ -1,6 +1,6 @@
-const mongoose = require('mongoose');
+const { Schema, model } = require('mongoose');
 
-const banSchema = new mongoose.Schema(
+const banSchema = new Schema(
     {
         userId: {
             type: String,
@@ -58,4 +58,4 @@ const banSchema = new mongoose.Schema(
         timestamps: true,
     },
 );
-module.exports = mongoose.model('bans', banSchema);
+module.exports = model('bans', banSchema);

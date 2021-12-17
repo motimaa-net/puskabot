@@ -1,12 +1,12 @@
-const Discord = require('discord.js');
+const { Client, GuildMember } = require('discord.js');
 const Bans = require('../models/banModel');
 
 module.exports = {
     name: 'guildMemberAdd',
     /**
      * @description Called when a member joins the guild.
-     * @param {Discord.Client} client
-     * @param {Discord.GuildMember} guildMember
+     * @param {Client} client
+     * @param {GuildMember} guildMember
      */
     async execute(client, guildMember) {
         const { user } = guildMember;

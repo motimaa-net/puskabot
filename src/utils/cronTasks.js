@@ -1,5 +1,5 @@
 const axios = require('axios');
-const Discord = require('discord.js');
+const { Client } = require('discord.js');
 const cron = require('node-cron');
 const Bans = require('../models/banModel');
 const Warns = require('../models/warnModel');
@@ -7,7 +7,7 @@ const Warns = require('../models/warnModel');
 const cronTasks = {
     /**
      * @description - Handles cron job for the bans.
-     * @param {Discord.Client} client
+     * @param {Client} client
      */
     banHandler: client => {
         const removeExpiredBans = async () => {
@@ -94,10 +94,13 @@ const cronTasks = {
 
     /**
      * @description - Updates motimaa.net playercount to bot's precense.
-     * @param {Discord.Client} client
+     * @param {Client} client
      */
     precenceUpdater: client => {
         const updatePrecense = async () => {
+            /**
+             * @type {number}
+             */
             const playerCount = (await axios.get('https://mcapi.us/server/status?ip=motimaa.net&port=25565')).data
                 .players.now;
             return client.user.setActivity(`${playerCount} pelaajaa`, {

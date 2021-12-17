@@ -1,8 +1,7 @@
 const { readdirSync } = require('fs');
 const { REST } = require('@discordjs/rest');
 const { Routes } = require('discord-api-types/v9');
-const Discord = require('discord.js');
-const { MessageEmbed, MessageActionRow, MessageButton } = require('discord.js');
+const { MessageEmbed, MessageActionRow, MessageButton, Client, TextChannel } = require('discord.js');
 const mongoose = require('mongoose');
 const cronTasks = require('../utils/cronTasks');
 
@@ -12,7 +11,7 @@ module.exports = {
 
     /**
      * @description Called once when the bot is ready.
-     * @param {Discord.Client} client
+     * @param {Client} client
      * @returns {void}
      */
     async execute(client) {
@@ -98,7 +97,7 @@ module.exports = {
 
             // Handle ban channel
             /**
-             * @type {Discord.TextChannel}
+             * @type {TextChannel}
              */
             const banChannel = client.channels.cache.find(channel => channel.id === process.env.BAN_CHANNEL);
             if (!banChannel) {

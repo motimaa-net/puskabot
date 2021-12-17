@@ -1,6 +1,5 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const { MessageEmbed } = require('discord.js');
-const Discord = require('discord.js');
+const { MessageEmbed, Client, Interaction, GuildMember } = require('discord.js');
 const Bans = require('../models/banModel');
 const timeUtils = require('../utils/timeUtils');
 
@@ -22,12 +21,19 @@ module.exports = {
 
     /**
      * @description Unban command
-     * @param {Discord.Client} client
-     * @param {Discord.Interaction} interaction
+     * @param {Client} client
+     * @param {Interaction} interaction
      * @returns {void}
      */
     async execute(client, interaction) {
+        /**
+         * @type {GuildMember}
+         */
         const member = interaction.options.getMember('käyttäjä');
+
+        /**
+         * @type {boolean}
+         */
         const silent = interaction.options.getBoolean('hiljainen');
 
         const errorEmbedBase = new MessageEmbed()

@@ -1,4 +1,5 @@
 const { ButtonPaginator, PaginatorEvents } = require('@psibean/discord.js-pagination');
+const { Message, MessageEmbed } = require('discord.js');
 
 const paginationHandler = async (interaction, pages) => {
     const buttons = [
@@ -63,8 +64,16 @@ const paginationHandler = async (interaction, pages) => {
     });
     buttonPaginator.on(PaginatorEvents.COLLECT_ERROR, async () => {
         try {
+            /**
+             * @type {Message}
+             */
             const message = await interaction.fetchReply();
+
+            /**
+             * @type {MessageEmbed}
+             */
             const embed = message.embeds[0];
+
             const components = message.components;
             components[0].components.forEach(component => {
                 component.disabled = true;
@@ -81,7 +90,14 @@ const paginationHandler = async (interaction, pages) => {
     });
     buttonPaginator.on(PaginatorEvents.PAGINATION_END, async () => {
         try {
+            /**
+             * @type {Message}
+             */
             const message = await interaction.fetchReply();
+
+            /**
+             * @type {MessageEmbed}
+             */
             const embed = message.embeds[0];
             const components = message.components;
             components[0].components.forEach(component => {
