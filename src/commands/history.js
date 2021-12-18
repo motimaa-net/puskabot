@@ -180,11 +180,7 @@ module.exports = {
                     })`,
                     client.user.displayAvatarURL(),
                 )
-                .setDescription(
-                    `Käyttäjälle **${infraction.username}** on myönnetty ${
-                        infraction.type.charAt(0).toUpperCase() + infraction.type.substring(1)
-                    }!`,
-                )
+                .setDescription(`Käyttäjälle **${infraction.username}** on myönnetty ${infraction.type}!`)
                 .setFooter(interaction.user.username, interaction.user.displayAvatarURL())
                 .setTimestamp()
                 .addFields([

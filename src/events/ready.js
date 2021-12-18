@@ -15,6 +15,7 @@ module.exports = {
      * @returns {void}
      */
     async execute(client) {
+        console.log('1');
         // Fance console log on startup. Dont judge me on the formatting. IT WORKS.
         console.log(`\u001b[92m `);
         console.log(`    \u001b[92m╭────────────────────────────────────────╮`);
