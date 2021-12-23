@@ -123,7 +123,7 @@ module.exports = {
             errorEmbedBase.setDescription(`Mykistyksen syyn täytyy olla 4-200 merkkiä pitkä!`);
             return interaction.reply({ embeds: [errorEmbedBase], ephemeral: true });
         }
-        if (days && (days < 1 || days > 28)) {
+        if (days < 1 || days > 28) {
             errorEmbedBase.setDescription(
                 `Mykistyksen keston täytyy olla 1-28 päivää! Mikäli haluttu kesto on suurempi, harkitse porttikiellon antamista.`,
             );
@@ -143,15 +143,15 @@ module.exports = {
             authorName: `${interaction.user.tag}`,
 
             reason,
-            length: days || null,
-            expiresAt: days ? expiresAt : null,
+            length: days,
+            expiresAt: expiresAt,
         });
         await newMute.save();
 
         const muteEmbed = new MessageEmbed()
             .setColor(process.env.SUCCESS_COLOR)
             .setImage('https://i.stack.imgur.com/Fzh0w.png')
-            .setAuthor('Mykistys myönnetty', client.user.displayAvatarURL())
+            .setAuthor({ name: 'Mykistys myönnetty', iconURL: client.user.displayAvatarURL() })
             .setDescription(`Käyttäjälle **${member.user.tag}** on myönnetty mykistys!`)
             .addFields([
                 { name: 'Käyttäjä', value: `${member.user.tag}`, inline: true },
@@ -167,9 +167,7 @@ module.exports = {
                     value: days ? `${days} päivää` : '**Ikuinen**',
                     inline: true,
                 },
-                days
-                    ? { name: 'Loppuu', value: `<t:${timeUtils.epochConverter(expiresAt)}:R>`, inline: true }
-                    : { name: '\u200B', value: `\u200B`, inline: true },
+                { name: 'Loppuu', value: `<t:${timeUtils.epochConverter(expiresAt)}:R>`, inline: true },
             ])
             .setFooter(interaction.user.username, interaction.user.displayAvatarURL())
             .setTimestamp();
