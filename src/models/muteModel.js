@@ -31,14 +31,14 @@ const muteSchema = new Schema(
             type: Date,
         },
 
-        unmuteType: {
+        removedType: {
             type: String,
             default: 'expired',
         },
-        unmutedAt: {
+        removedAt: {
             type: Date,
         },
-        unmutedBy: {
+        removedBy: {
             type: String,
             trim: true,
         },

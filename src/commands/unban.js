@@ -56,9 +56,9 @@ module.exports = {
             {
                 $set: {
                     active: false,
-                    unbannedType: 'manual',
-                    unbannedAt: new Date(),
-                    unbannedBy: interaction.user.tag,
+                    removedType: 'manual',
+                    removedAt: new Date(),
+                    removedBy: interaction.user.tag,
                 },
             },
         );

@@ -77,8 +77,10 @@ module.exports = {
 
         // Unwarn latest warning
         const latestWarning = activeWarnings[0];
-        await Warns.findOneAndUpdate({ _id: latestWarning._id }, { $set: { active: false } });
-
+        await Warns.findOneAndUpdate(
+            { _id: latestWarning._id },
+            { $set: { active: false, removedType: 'manual', removedAt: new Date(), removedBy: interaction.user.tag } },
+        );
         // New active warnings
         activeWarnings.shift();
 

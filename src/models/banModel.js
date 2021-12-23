@@ -37,14 +37,14 @@ const banSchema = new Schema(
             type: Date,
         },
 
-        unbannedType: {
+        removedType: {
             type: String,
             default: 'expired',
         },
-        unbannedAt: {
+        removedAt: {
             type: Date,
         },
-        unbannedBy: {
+        removedBy: {
             type: String,
             trim: true,
         },

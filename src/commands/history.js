@@ -205,7 +205,7 @@ module.exports = {
                               value: `${process.env.WARN_EXPIRES} päivää`,
                               inline: true,
                           },
-                    infraction.length
+                    infraction.length && infraction.removedType !== 'manual'
                         ? {
                               name: 'Vanhenee',
                               value: `<t:${timeUtils.epochConverter(infraction.expiresAt)}:R>`,
@@ -213,6 +213,16 @@ module.exports = {
                           }
                         : { name: '\u200B', value: `\u200B`, inline: true },
                 ]);
+            if (infraction.removedType === 'manual') {
+                infinfractionsEmbed
+                    .addField(
+                        'Poistettu manuaalisesti',
+                        `<t:${timeUtils.epochConverter(infraction.removedAt)}:R>`,
+                        true,
+                    )
+                    .addField('Poistaja', `${infraction.removedBy}`, true)
+                    .addField('\u200B', '\u200B', true);
+            }
             infinfractionsEmbeds.push(infinfractionsEmbed);
         });
 

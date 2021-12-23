@@ -56,9 +56,9 @@ module.exports = {
             {
                 $set: {
                     active: false,
-                    unmutedType: 'manual',
-                    unmutedAt: new Date(),
-                    unmutedBy: interaction.user.tag,
+                    removedType: 'manual',
+                    removedAt: new Date(),
+                    removedBy: interaction.user.tag,
                 },
             },
         );

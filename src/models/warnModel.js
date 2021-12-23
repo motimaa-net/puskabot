@@ -24,6 +24,18 @@ const warnSchema = new Schema(
             required: true,
         },
 
+        removedType: {
+            type: String,
+            default: 'expired',
+        },
+        removedAt: {
+            type: Date,
+        },
+        removedBy: {
+            type: String,
+            trim: true,
+        },
+
         expiresAt: {
             type: Date,
         },
