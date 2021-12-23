@@ -27,7 +27,7 @@
     "dependencies": {
         "@discordjs/builders": "^0.9.0",
         "@discordjs/rest": "^0.1.0-canary.0",
-        "@psibean/discord.js-pagination": "4.0.2",
+        "@psibean/discord.js-pagination": "https://github.com/KasperiP/discord.js-pagination.git",
         "axios": "^0.24.0",
         "discord-api-types": "^0.25.2",
         "discord.js": "^13.4.0-dev.1640217946.aa7c1b2",
