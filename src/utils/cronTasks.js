@@ -112,7 +112,6 @@ const cronTasks = {
                         .members.fetch(muteToCheck.userId)
                         .then(member => {
                             if (member) {
-                                member.roles.set(muteToCheck.roles);
                                 member
                                     .send({
                                         content: `Mykistyksesi on päättynyt!`,
