@@ -35,7 +35,7 @@ module.exports = {
                 const banInfoEmbed = new MessageEmbed()
                     .setColor(process.env.SUCCESS_COLOR)
                     .setImage('https://i.stack.imgur.com/Fzh0w.png')
-                    .setAuthor('Porttikielto myönnetty', client.user.displayAvatarURL())
+                    .setAuthor({ name: 'Porttikielto myönnetty', iconURL: client.user.displayAvatarURL() })
                     .setDescription(`Sinulle on myönnetty porttikielto!`)
                     .addFields([
                         { name: 'Käyttäjä', value: `${interaction.user.tag}`, inline: true },

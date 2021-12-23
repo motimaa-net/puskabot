@@ -10,12 +10,6 @@ const muteSchema = new Schema(
             type: String,
         },
 
-        roles: {
-            type: Array,
-            required: true,
-            default: [],
-        },
-
         authorId: {
             type: String,
             required: true,

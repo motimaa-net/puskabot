@@ -39,7 +39,7 @@ module.exports = {
         const errorEmbedBase = new MessageEmbed()
             .setColor(process.env.ERROR_COLOR)
             .setImage('https://i.stack.imgur.com/Fzh0w.png')
-            .setAuthor('Tapahtui virhe', client.user.displayAvatarURL())
+            .setAuthor({ name: 'Tapahtui virhe', iconURL: client.user.displayAvatarURL() })
             .setFooter(interaction.user.username, interaction.user.displayAvatarURL())
             .setTimestamp();
 
@@ -49,7 +49,7 @@ module.exports = {
             return interaction.reply({ embeds: [errorEmbedBase], ephemeral: true });
         }
 
-        member.roles.set(isMuted.roles);
+        member.disableCommunicationUntil(null, '');
 
         await Mutes.findOneAndUpdate(
             { userId: member.id, active: true },
@@ -66,7 +66,7 @@ module.exports = {
         const unmuteEmbed = new MessageEmbed()
             .setColor(process.env.SUCCESS_COLOR)
             .setImage('https://i.stack.imgur.com/Fzh0w.png')
-            .setAuthor('Mykistys poistettu', client.user.displayAvatarURL())
+            .setAuthor({ name: 'Mykistys poistettu', iconURL: client.user.displayAvatarURL() })
             .setDescription(`Käyttäjän **${member.user.tag}** mykistys on poistettu!`)
             .addFields([
                 { name: 'Käyttäjä', value: `${member.user.tag}`, inline: true },

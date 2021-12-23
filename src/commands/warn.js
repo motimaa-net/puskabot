@@ -44,7 +44,7 @@ module.exports = {
         const errorEmbedBase = new MessageEmbed()
             .setColor(process.env.ERROR_COLOR)
             .setImage('https://i.stack.imgur.com/Fzh0w.png')
-            .setAuthor('Tapahtui virhe', client.user.displayAvatarURL())
+            .setAuthor({ name: 'Tapahtui virhe', iconURL: client.user.displayAvatarURL() })
             .setFooter(interaction.user.username, interaction.user.displayAvatarURL())
             .setTimestamp();
 
@@ -132,7 +132,7 @@ module.exports = {
             const banEmbed = new MessageEmbed()
                 .setColor(process.env.SUCCESS_COLOR)
                 .setImage('https://i.stack.imgur.com/Fzh0w.png')
-                .setAuthor('Porttikielto myönnetty', client.user.displayAvatarURL())
+                .setAuthor({ name: 'Porttikielto myönnetty', iconURL: client.user.displayAvatarURL() })
                 .setDescription(`Käyttäjälle **${member.user.tag}** on myönnetty porttikielto!`)
                 .addFields([
                     { name: 'Käyttäjä', value: `${member.user.tag}`, inline: true },
@@ -187,7 +187,7 @@ module.exports = {
         const warnEmbed = new MessageEmbed()
             .setColor(process.env.SUCCESS_COLOR)
             .setImage('https://i.stack.imgur.com/Fzh0w.png')
-            .setAuthor('Käyttäjää varoitettu', client.user.displayAvatarURL())
+            .setAuthor({ name: 'Käyttäjää varoitettu', iconURL: client.user.displayAvatarURL() })
             .setDescription(`Käyttäjälle **${member.user.tag}** on annettu varoitus!`)
             .addFields([
                 { name: 'Käyttäjä', value: `${member.user.tag}`, inline: true },

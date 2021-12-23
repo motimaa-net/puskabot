@@ -40,7 +40,7 @@ module.exports = {
         const errorEmbedBase = new MessageEmbed()
             .setColor(process.env.ERROR_COLOR)
             .setImage('https://i.stack.imgur.com/Fzh0w.png')
-            .setAuthor('Tapahtui virhe', client.user.displayAvatarURL())
+            .setAuthor({ name: 'Tapahtui virhe', iconURL: client.user.displayAvatarURL() })
             .setFooter(interaction.user.username, interaction.user.displayAvatarURL())
             .setTimestamp();
 
@@ -74,10 +74,12 @@ module.exports = {
         const historyEmbed = new MessageEmbed()
             .setColor(process.env.SUCCESS_COLOR)
             .setImage('https://i.stack.imgur.com/Fzh0w.png')
-            .setAuthor(
-                `Rikehistoria tiedot ${combinedInfractions.length > 0 ? `(1/${combinedInfractions.length + 1})` : ``}`,
-                client.user.displayAvatarURL(),
-            )
+            .setAuthor({
+                name: `Rikehistoria tiedot ${
+                    combinedInfractions.length > 0 ? `(1/${combinedInfractions.length + 1})` : ``
+                }`,
+                iconURL: client.user.displayAvatarURL(),
+            })
             .setDescription(`Käyttäjän **${member.user.tag}** rikehistoria!`)
             .setFooter(interaction.user.username, interaction.user.displayAvatarURL())
             .setTimestamp();
@@ -174,12 +176,12 @@ module.exports = {
             const infinfractionsEmbed = new MessageEmbed()
                 .setColor(infraction.active ? process.env.SUCCESS_COLOR : process.env.EXPIRED_COLOR)
                 .setImage('https://i.stack.imgur.com/Fzh0w.png')
-                .setAuthor(
-                    `${infraction.type.charAt(0).toUpperCase() + infraction.type.substring(1)} (${index + 2}/${
+                .setAuthor({
+                    name: `${infraction.type.charAt(0).toUpperCase() + infraction.type.substring(1)} (${index + 2}/${
                         combinedInfractions.length + 1
                     })`,
-                    client.user.displayAvatarURL(),
-                )
+                    iconURL: client.user.displayAvatarURL(),
+                })
                 .setDescription(`Käyttäjälle **${infraction.username}** on myönnetty ${infraction.type}!`)
                 .setFooter(interaction.user.username, interaction.user.displayAvatarURL())
                 .setTimestamp()

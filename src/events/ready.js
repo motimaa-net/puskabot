@@ -111,7 +111,7 @@ module.exports = {
                 const banInfoEmbed = new MessageEmbed()
                     .setColor(process.env.SUCCESS_COLOR)
                     .setImage('https://i.stack.imgur.com/Fzh0w.png')
-                    .setAuthor(`Olet saanut porttikiellon`, client.user.displayAvatarURL())
+                    .setAuthor({ name: 'Olet saanut porttikiellon', iconURL: client.user.displayAvatarURL() })
                     .setDescription(
                         // eslint-disable-next-line max-len
                         `Olet saanut porttikiellon **${banChannel.guild.name}** Discord-palvelimella. Tältä kanavalta saat tietoa porttikieltosi kestosta. Sinua ei poisteta palvelimelta porttikieltosi aikana. Kun porttikieltosi vanhenee, näet jälleen kaikki kanavat.`,

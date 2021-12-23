@@ -39,7 +39,7 @@ module.exports = {
         const errorEmbedBase = new MessageEmbed()
             .setColor(process.env.ERROR_COLOR)
             .setImage('https://i.stack.imgur.com/Fzh0w.png')
-            .setAuthor('Tapahtui virhe', client.user.displayAvatarURL())
+            .setAuthor({ name: 'Tapahtui virhe', iconURL: client.user.displayAvatarURL() })
             .setFooter(interaction.user.username, interaction.user.displayAvatarURL())
             .setTimestamp();
 
@@ -66,7 +66,7 @@ module.exports = {
         const unbanEmbed = new MessageEmbed()
             .setColor(process.env.SUCCESS_COLOR)
             .setImage('https://i.stack.imgur.com/Fzh0w.png')
-            .setAuthor('Porttikielto poistettu', client.user.displayAvatarURL())
+            .setAuthor({ name: 'Porttikielto poistettu', iconURL: client.user.displayAvatarURL() })
             .setDescription(`Käyttäjän **${member.user.tag}** porttikielto on poistettu!`)
             .addFields([
                 { name: 'Käyttäjä', value: `${member.user.tag}`, inline: true },

@@ -1,5 +1,5 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const { MessageEmbed, Permissions, Client, Interaction, GuildMember } = require('discord.js');
+const { MessageEmbed, Client, Interaction, GuildMember } = require('discord.js');
 const Bans = require('../models/banModel');
 const Mutes = require('../models/muteModel');
 const timeUtils = require('../utils/timeUtils');
@@ -15,11 +15,14 @@ module.exports = {
         .addStringOption(option =>
             option.setName('syy').setDescription('Miksi mykistys annetaan käyttäjälle?').setRequired(true),
         )
+        .addIntegerOption(option =>
+            option
+                .setName('aika')
+                .setDescription('Kuinka monta päivää mykistys kestää? Maksimi 28pv')
+                .setRequired(true),
+        )
         .addBooleanOption(option =>
             option.setName('hiljainen').setDescription('Haluatko mykistyksen olevan hiljainen (-s)?').setRequired(true),
-        )
-        .addIntegerOption(option =>
-            option.setName('aika').setDescription('Kuinka monta päivää mykistys kestää?').setRequired(false),
         ),
 
     /**
@@ -52,7 +55,7 @@ module.exports = {
         const errorEmbedBase = new MessageEmbed()
             .setColor(process.env.ERROR_COLOR)
             .setImage('https://i.stack.imgur.com/Fzh0w.png')
-            .setAuthor('Tapahtui virhe', client.user.displayAvatarURL())
+            .setAuthor({ name: 'Tapahtui virhe', iconURL: client.user.displayAvatarURL() })
             .setFooter(interaction.user.username, interaction.user.displayAvatarURL())
             .setTimestamp();
 
@@ -83,8 +86,9 @@ module.exports = {
             return interaction.reply({ embeds: [errorEmbedBase], ephemeral: true });
         }
 
+        const communicationDisabled = member?.communicationDisabledUntil;
         const isMuted = await Mutes.findOne({ userId: member.id, active: true });
-        if (isMuted) {
+        if (isMuted && communicationDisabled) {
             errorEmbedBase.setDescription(`Käyttäjällä **${member.user.tag}** on jo mykistys!`).addFields([
                 { name: 'Käyttäjä', value: `${isMuted.username}`, inline: true },
                 { name: 'Syynä', value: `${isMuted.reason}`, inline: true },
@@ -111,37 +115,25 @@ module.exports = {
             errorEmbedBase.setDescription(`Et voi antaa mykistystä itsellesi!`);
             return interaction.reply({ embeds: [errorEmbedBase], ephemeral: true });
         }
-        if (member.permissions.has(Permissions.FLAGS.ADMINISTRATOR)) {
-            errorEmbedBase.setDescription(`Et voi antaa mykistystä ylläpitäjälle!`);
+        if (!member.moderatable) {
+            errorEmbedBase.setDescription(`Et voi antaa mykistystä tälle käyttäjälle!`);
             return interaction.reply({ embeds: [errorEmbedBase], ephemeral: true });
         }
         if (reason.length < 4 || reason.length > 200) {
             errorEmbedBase.setDescription(`Mykistyksen syyn täytyy olla 4-200 merkkiä pitkä!`);
             return interaction.reply({ embeds: [errorEmbedBase], ephemeral: true });
         }
-        if (days && (days < 1 || days > 365)) {
+        if (days && (days < 1 || days > 28)) {
             errorEmbedBase.setDescription(
-                `Mykistyksen keston täytyy olla 1-365 päivää! Voit myös antaa ikuisen mykistyksen jättämällä aika-arvon huomioimatta.`,
+                `Mykistyksen keston täytyy olla 1-28 päivää! Mikäli haluttu kesto on suurempi, harkitse porttikiellon antamista.`,
             );
             return interaction.reply({ embeds: [errorEmbedBase], ephemeral: true });
         }
-
-        // Save user roles before mute
-        const userRoles = [];
-        await member.roles.cache
-            .sort((a, b) => b.position - a.position)
-            .map(r => r)
-            .forEach(role => {
-                if (role.name !== '@everyone') {
-                    userRoles.push(role.id);
-                }
-            });
-        await member.roles.set([]);
-        member.roles.add(process.env.MUTE_ROLE);
-
         // Initialize mute expiry date
         const expiresAt = new Date();
         expiresAt.setDate(expiresAt.getDate() + days);
+
+        member.disableCommunicationUntil(expiresAt, reason);
 
         const newMute = new Mutes({
             userId: member.id,
@@ -149,8 +141,6 @@ module.exports = {
 
             authorId: interaction.user.id,
             authorName: `${interaction.user.tag}`,
-
-            roles: userRoles,
 
             reason,
             length: days || null,
