@@ -224,6 +224,15 @@
             "user_viewable": true,
             "user_editable": true,
             "rules": "required|string"
+        },
+        {
+            "name": "Delete invites",
+            "description": "Delete invites",
+            "env_variable": "DELETE_INVITES",
+            "default_value": "true",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required|string"
         }
     ]
 }
