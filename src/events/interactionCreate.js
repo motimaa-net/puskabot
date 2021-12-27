@@ -1,4 +1,4 @@
-const { MessageEmbed, Client, Interaction } = require('discord.js');
+const { MessageEmbed, Client, Interaction, Permissions } = require('discord.js');
 const Bans = require('../models/banModel');
 const timeUtils = require('../utils/timeUtils');
 module.exports = {
@@ -10,6 +10,9 @@ module.exports = {
      * @returns {void}
      */
     async execute(client, interaction) {
+        // Backup check because illuminati is real
+        if (!interaction?.member.permissions.has(Permissions.FLAGS.MANAGE_MESSAGES)) return;
+
         // Handle commands
         if (interaction.isCommand()) {
             const command = client.commands.get(interaction.commandName);
