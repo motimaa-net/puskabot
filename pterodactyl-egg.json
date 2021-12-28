@@ -190,15 +190,6 @@
             "rules": "required|string"
         },
         {
-            "name": "Mute role",
-            "description": "Mute role",
-            "env_variable": "MUTE_ROLE",
-            "default_value": "",
-            "user_viewable": true,
-            "user_editable": true,
-            "rules": "required|string"
-        },
-        {
             "name": "Warn expires",
             "description": "Warn expires",
             "env_variable": "WARN_EXPIRES",
