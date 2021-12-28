@@ -64,22 +64,22 @@ module.exports = {
             }
 
             // Register command permissions
-            const users = [];
+            const roles = [];
             const fullPermissions = [];
-            const staffIdList = [];
+            const staffRoleList = [
+                '559410546584059926',
+                '307135126976987136',
+                '216220611830087680',
+                '162975489588330496',
+                '307135725495648257',
+            ];
 
-            // Users with MANAGE_MESSAGES permission are able to use all commannds
-            (await client.guilds.cache.get(process.env.GUILD_ID).members.fetch())
-                .filter(member => member.permissions.has(Permissions.FLAGS.MANAGE_MESSAGES))
-                .forEach(member => {
-                    staffIdList.push(member.id);
-                });
-
-            for (let i = 0; i < staffIdList.length; i += 1) {
-                const id = staffIdList[i];
-                users.push({
+            // Roles with staff roles can use slash commands
+            for (let i = 0; i < staffRoleList.length; i += 1) {
+                const id = staffRoleList[i];
+                roles.push({
                     id,
-                    type: 'USER',
+                    type: 'ROLE',
                     permission: true,
                 });
             }
@@ -89,7 +89,7 @@ module.exports = {
             registeredCommands.forEach(command => {
                 fullPermissions.push({
                     id: command.id,
-                    permissions: users,
+                    permissions: roles,
                 });
             });
 
