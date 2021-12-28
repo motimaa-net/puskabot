@@ -82,7 +82,7 @@ module.exports = {
             { $set: { active: false, removedType: 'manual', removedAt: new Date(), removedBy: interaction.user.tag } },
         );
         // New active warnings
-        activeWarnings.shift();
+        await activeWarnings.shift();
 
         const unwarnEmbed = new MessageEmbed()
             .setColor(process.env.SUCCESS_COLOR)

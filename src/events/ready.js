@@ -1,7 +1,7 @@
 const { readdirSync } = require('fs');
 const { REST } = require('@discordjs/rest');
 const { Routes } = require('discord-api-types/v9');
-const { MessageEmbed, MessageActionRow, MessageButton, Client, TextChannel, Permissions } = require('discord.js');
+const { MessageEmbed, MessageActionRow, MessageButton, Client, TextChannel } = require('discord.js');
 const mongoose = require('mongoose');
 const cronTasks = require('../utils/cronTasks');
 
@@ -66,13 +66,7 @@ module.exports = {
             // Register command permissions
             const roles = [];
             const fullPermissions = [];
-            const staffRoleList = [
-                '559410546584059926',
-                '307135126976987136',
-                '216220611830087680',
-                '162975489588330496',
-                '307135725495648257',
-            ];
+            const staffRoleList = ['824577070776582144'];
 
             // Roles with staff roles can use slash commands
             for (let i = 0; i < staffRoleList.length; i += 1) {
