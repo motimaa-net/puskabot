@@ -224,6 +224,15 @@
             "user_viewable": true,
             "user_editable": true,
             "rules": "required|string"
+        },
+        {
+            "name": "Staff roles",
+            "description": "Staff roles",
+            "env_variable": "STAFF_ROLES",
+            "default_value": "",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required|string"
         }
     ]
 }

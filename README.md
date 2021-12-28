@@ -76,6 +76,8 @@ WARN_THRESHOLD = 4
 WARN_BAN_DAYS = 30
 
 DELETE_INVITES = true
+
+STAFF_ROLES = 123456789123456789,123456789123456789
 ```
 
 Visit the Discord [developer portal](https://discordapp.com/developers/applications/) to create an app and use the client token you are given for the `BOT_TOKEN` option. `GUILD_ID` is your server's ID.
