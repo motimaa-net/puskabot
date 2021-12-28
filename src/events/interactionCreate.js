@@ -10,11 +10,11 @@ module.exports = {
      * @returns {void}
      */
     async execute(client, interaction) {
-        // Backup check because illuminati is real
-        if (!interaction?.member.permissions.has(Permissions.FLAGS.MANAGE_MESSAGES)) return;
-
         // Handle commands
         if (interaction.isCommand()) {
+            // Backup check because illuminati is real
+            if (!interaction?.member.permissions.has(Permissions.FLAGS.MANAGE_MESSAGES)) return;
+
             const command = client.commands.get(interaction.commandName);
 
             if (!command) return;
