@@ -66,7 +66,13 @@ module.exports = {
             // Register command permissions
             const roles = [];
             const fullPermissions = [];
-            const staffRoleList = ['824577070776582144'];
+            const staffRoleList = [
+                '559410546584059926',
+                '307135126976987136',
+                '216220611830087680',
+                '162975489588330496',
+                '307135725495648257',
+            ];
 
             // Roles with staff roles can use slash commands
             for (let i = 0; i < staffRoleList.length; i += 1) {
