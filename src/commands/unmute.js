@@ -1,5 +1,5 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const { MessageEmbed, Client, Interaction, GuildMember } = require('discord.js');
+const { MessageEmbed, Client, CommandInteraction, GuildMember } = require('discord.js');
 const Mutes = require('../models/muteModel');
 const timeUtils = require('../utils/timeUtils');
 
@@ -22,7 +22,7 @@ module.exports = {
     /**
      * @description Unmute command
      * @param {Client} client
-     * @param {Interaction} interaction
+     * @param {CommandInteraction} interaction
      * @returns {void}
      */
     async execute(client, interaction) {

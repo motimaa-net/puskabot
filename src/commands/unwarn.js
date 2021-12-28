@@ -1,5 +1,5 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const { MessageEmbed, Permissions, Client, Interaction, GuildMember } = require('discord.js');
+const { MessageEmbed, Permissions, Client, CommandInteraction, GuildMember } = require('discord.js');
 const Warns = require('../models/warnModel');
 
 module.exports = {
@@ -24,7 +24,7 @@ module.exports = {
     /**
      * @description Unwarn command
      * @param {Client} client
-     * @param {Interaction} interaction
+     * @param {CommandInteraction} interaction
      * @returns {void}
      */
     async execute(client, interaction) {
