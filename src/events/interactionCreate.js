@@ -1,5 +1,6 @@
 const { MessageEmbed, Client, Interaction, Permissions } = require('discord.js');
 const Bans = require('../models/banModel');
+const logger = require('../utils/logger');
 const timeUtils = require('../utils/timeUtils');
 module.exports = {
     name: 'interactionCreate',
@@ -21,6 +22,7 @@ module.exports = {
 
             try {
                 await command.execute(client, interaction);
+                logger(interaction);
                 return;
             } catch (error) {
                 console.error(error);
