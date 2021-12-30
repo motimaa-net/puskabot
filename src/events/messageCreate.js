@@ -30,8 +30,7 @@ module.exports = {
                 // Check if inviteLink contains any of the guildInvites codes
                 if (!guildInvites.includes(inviteLink)) {
                     await m.reply({
-                        content: 'Kutsulinkkien jakaminen muille palvelimille on kielletty.',
-                        ephemeral: true,
+                        content: `Hei <@${m.member.user.id}>! Kutsulinkkien jakaminen muille palvelimille on kielletty.`,
                     });
 
                     m.createdTimestamp += 30000;
