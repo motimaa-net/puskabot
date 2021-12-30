@@ -110,7 +110,7 @@ module.exports = {
                         // eslint-disable-next-line max-len
                         `Olet saanut porttikiellon **${banChannel.guild.name}** Discord-palvelimella. Tältä kanavalta saat tietoa porttikieltosi kestosta. Sinua ei poisteta palvelimelta porttikieltosi aikana. Kun porttikieltosi vanhenee, näet jälleen kaikki kanavat.`,
                     )
-                    .setFooter(client.user.username, client.user.displayAvatarURL())
+                    .setFooter({ text: client.user.username, iconURL: client.user.displayAvatarURL() })
                     .setTimestamp();
                 const banButtons = new MessageActionRow().addComponents(
                     // eslint-disable-next-line newline-per-chained-call

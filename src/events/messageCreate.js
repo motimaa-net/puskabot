@@ -17,7 +17,7 @@ module.exports = {
      */
     async execute(client, m) {
         if (m.author.bot) return;
-        // If (m.member.permissions.has(Permissions.FLAGS.MANAGE_MESSAGES)) return;
+        if (m.member.permissions.has(Permissions.FLAGS.MANAGE_MESSAGES)) return;
 
         if (process.env.DELETE_INVITES === 'true') {
             const inviteRegex =

@@ -68,7 +68,7 @@ module.exports = {
                               }
                             : { name: '\u200B', value: `\u200B`, inline: true },
                     ])
-                    .setFooter(interaction.user.username, interaction.user.displayAvatarURL())
+                    .setFooter({ text: interaction.user.username, iconURL: interaction.user.displayAvatarURL() })
                     .setTimestamp();
                 return interaction.reply({ embeds: [banInfoEmbed], ephemeral: true });
             }

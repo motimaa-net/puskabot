@@ -47,7 +47,7 @@ module.exports = {
             .setColor(process.env.ERROR_COLOR)
             .setImage('https://i.stack.imgur.com/Fzh0w.png')
             .setAuthor({ name: 'Tapahtui virhe', iconURL: client.user.displayAvatarURL() })
-            .setFooter(interaction.user.username, interaction.user.displayAvatarURL())
+            .setFooter({ text: interaction.user.username, iconURL: interaction.user.displayAvatarURL() })
             .setTimestamp();
 
         if (!member?.id) {
@@ -110,7 +110,7 @@ module.exports = {
                     inline: true,
                 },
             ])
-            .setFooter(interaction.user.username, interaction.user.displayAvatarURL())
+            .setFooter({ text: interaction.user.username, iconURL: interaction.user.displayAvatarURL() })
             .setTimestamp();
 
         await interaction.reply({ embeds: [unwarnEmbed], ephemeral: silent });

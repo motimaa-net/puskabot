@@ -40,7 +40,7 @@ module.exports = {
             .setColor(process.env.ERROR_COLOR)
             .setImage('https://i.stack.imgur.com/Fzh0w.png')
             .setAuthor({ name: 'Tapahtui virhe', iconURL: client.user.displayAvatarURL() })
-            .setFooter(interaction.user.username, interaction.user.displayAvatarURL())
+            .setFooter({ text: interaction.user.username, iconURL: interaction.user.displayAvatarURL() })
             .setTimestamp();
 
         if (!member?.id) {
@@ -87,7 +87,7 @@ module.exports = {
                 iconURL: client.user.displayAvatarURL(),
             })
             .setDescription(`Käyttäjän **${member.user.tag}** rikehistoria!`)
-            .setFooter(interaction.user.username, interaction.user.displayAvatarURL())
+            .setFooter({ text: interaction.user.username, iconURL: interaction.user.displayAvatarURL() })
             .setTimestamp();
 
         // Warning fields
@@ -189,7 +189,7 @@ module.exports = {
                     iconURL: client.user.displayAvatarURL(),
                 })
                 .setDescription(`Käyttäjälle **${infraction.username}** on myönnetty ${infraction.type}!`)
-                .setFooter(interaction.user.username, interaction.user.displayAvatarURL())
+                .setFooter({ text: interaction.user.username, iconURL: interaction.user.displayAvatarURL() })
                 .setTimestamp()
                 .addFields([
                     { name: 'Käyttäjä', value: `${infraction.username}`, inline: true },

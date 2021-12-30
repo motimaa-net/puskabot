@@ -45,7 +45,7 @@ module.exports = {
             .setColor(process.env.ERROR_COLOR)
             .setImage('https://i.stack.imgur.com/Fzh0w.png')
             .setAuthor({ name: 'Tapahtui virhe', iconURL: client.user.displayAvatarURL() })
-            .setFooter(interaction.user.username, interaction.user.displayAvatarURL())
+            .setFooter({ text: interaction.user.username, iconURL: interaction.user.displayAvatarURL() })
             .setTimestamp();
 
         if (!member?.id) {
@@ -158,7 +158,7 @@ module.exports = {
                     { name: 'Loppuu', value: `<t:${timeUtils.epochConverter(banExpiresAt)}:R>`, inline: true },
                 ])
                 .addField('\u200B', '\u200B', false)
-                .setFooter(interaction.user.username, interaction.user.displayAvatarURL())
+                .setFooter({ text: interaction.user.username, iconURL: interaction.user.displayAvatarURL() })
                 .setTimestamp();
 
             for (let x = 0; x < activeWarns.length; x++) {
@@ -221,7 +221,7 @@ module.exports = {
                     inline: true,
                 },
             ])
-            .setFooter(interaction.user.username, interaction.user.displayAvatarURL())
+            .setFooter({ text: interaction.user.username, iconURL: interaction.user.displayAvatarURL() })
             .setTimestamp();
 
         await interaction.reply({ embeds: [warnEmbed], ephemeral: silent });

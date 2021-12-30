@@ -40,7 +40,7 @@ module.exports = {
             .setColor(process.env.ERROR_COLOR)
             .setImage('https://i.stack.imgur.com/Fzh0w.png')
             .setAuthor({ name: 'Tapahtui virhe', iconURL: client.user.displayAvatarURL() })
-            .setFooter(interaction.user.username, interaction.user.displayAvatarURL())
+            .setFooter({ text: interaction.user.username, iconURL: interaction.user.displayAvatarURL() })
             .setTimestamp();
 
         if (!member?.id) {
@@ -91,7 +91,7 @@ module.exports = {
                 { name: 'Poistettu', value: `<t:${timeUtils.epochConverter(new Date())}:R>`, inline: true },
                 { name: '\u200B', value: `\u200B`, inline: true },
             ])
-            .setFooter(interaction.user.username, interaction.user.displayAvatarURL())
+            .setFooter({ text: interaction.user.username, iconURL: interaction.user.displayAvatarURL() })
             .setTimestamp();
 
         interaction.reply({ embeds: [unbanEmbed], ephemeral: silent });
