@@ -43,6 +43,13 @@ module.exports = {
             .setFooter(interaction.user.username, interaction.user.displayAvatarURL())
             .setTimestamp();
 
+        if (!member?.id) {
+            errorEmbedBase.setDescription(
+                `Kyseistä käyttäjää ei löytynyt! Käyttäjä on todennäköisesti poistunut palvelimelta!`,
+            );
+            return interaction.reply({ embeds: [errorEmbedBase], ephemeral: true });
+        }
+
         const isMuted = await Mutes.findOne({ userId: member.id, active: true });
         if (!isMuted) {
             errorEmbedBase.setDescription(`Käyttäjällä **${member.user.tag}** ei ole voimassa olevaa mykistystä!`);

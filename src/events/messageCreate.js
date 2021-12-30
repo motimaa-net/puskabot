@@ -1,5 +1,10 @@
 const { Client, Message, Permissions } = require('discord.js');
 
+const usersMap = new Map();
+const LIMIT = 7;
+const DIFF = 5000;
+const TIME = 30000;
+
 module.exports = {
     name: 'messageCreate',
     once: false,
@@ -11,31 +16,79 @@ module.exports = {
      * @returns {void}
      */
     async execute(client, m) {
-        if (process.env.DELETE_INVITES !== 'true') return;
-        const inviteRegex =
-            /(https:\/\/)?(www\.)?(((discord(app)?)?\.com\/invite)|((discord(app)?)?\.gg))\/(?<invite>.+)/gm;
-        // Check if m.content contains an invite
-        if (inviteRegex.test(m.content) && !m.member.permissions.has(Permissions.FLAGS.MANAGE_MESSAGES)) {
-            // Get the invite from string
-            const inviteLink = m.content.match(inviteRegex).find(invite => invite);
-            const guildInvites = (await m.guild.invites.fetch()).map(invite => invite.url);
-            // Check if inviteLink contains any of the guildInvites codes
-            if (!guildInvites.includes(inviteLink)) {
-                await m.reply({
-                    content: 'Kutsulinkkien jakaminen muille palvelimille on kielletty.',
-                    ephemeral: true,
-                });
+        if (m.author.bot) return;
+        // If (m.member.permissions.has(Permissions.FLAGS.MANAGE_MESSAGES)) return;
 
-                m.createdTimestamp += 30000;
+        if (process.env.DELETE_INVITES === 'true') {
+            const inviteRegex =
+                /(https:\/\/)?(www\.)?(((discord(app)?)?\.com\/invite)|((discord(app)?)?\.gg))\/(?<invite>.+)/gm;
 
-                await m.member.disableCommunicationUntil(
-                    m.createdTimestamp,
-                    'Kutsulinkkien jakaminen muille palvelimille on kielletty.',
-                );
+            if (inviteRegex.test(m.content)) {
+                // Get the invite from string
+                const inviteLink = m.content.match(inviteRegex).find(invite => invite);
+                const guildInvites = (await m.guild.invites.fetch()).map(invite => invite.url);
+                // Check if inviteLink contains any of the guildInvites codes
+                if (!guildInvites.includes(inviteLink)) {
+                    await m.reply({
+                        content: 'Kutsulinkkien jakaminen muille palvelimille on kielletty.',
+                        ephemeral: true,
+                    });
 
-                m.delete().catch(e => {
-                    if (e.code) return;
-                    console.log(e);
+                    m.createdTimestamp += 30000;
+
+                    await m.member.disableCommunicationUntil(
+                        m.createdTimestamp,
+                        'Kutsulinkkien jakaminen muille palvelimille on kielletty.',
+                    );
+
+                    m.delete().catch(e => {
+                        if (e.code) return;
+                        console.log(e);
+                    });
+                }
+            }
+        }
+        if (process.env.SPAM_HANDLER === 'true') {
+            if (usersMap.has(m.author.id)) {
+                const userData = usersMap.get(m.author.id);
+                const { lastMessage, timer } = userData;
+                const difference = m.createdTimestamp - lastMessage.createdTimestamp;
+                let msgCount = userData.msgCount;
+                if (difference > DIFF) {
+                    clearTimeout(timer);
+                    userData.msgCount = 1;
+                    userData.lastMessage = m;
+                    userData.timer = setTimeout(() => {
+                        usersMap.delete(m.author.id);
+                    }, TIME);
+                    usersMap.set(m.author.id, userData);
+                } else {
+                    ++msgCount;
+                    if (parseInt(msgCount) === LIMIT) {
+                        m.reply({
+                            content:
+                                'Kappas kummaa, nalkkiin jäit senkin pikkurikollinen! Spammiviestien lähettäminen ei ole sallittua.',
+                            ephemeral: true,
+                        });
+                        m.createdTimestamp += 3000;
+                        await m.member.disableCommunicationUntil(
+                            m.createdTimestamp,
+                            'Kappas kummaa, nalkkiin jäit senkin pikkurikollinen! Spammiviestien lähettäminen ei ole sallittua.',
+                        );
+                        m.channel.bulkDelete(LIMIT);
+                    } else {
+                        userData.msgCount = msgCount;
+                        usersMap.set(m.author.id, userData);
+                    }
+                }
+            } else {
+                let fn = setTimeout(() => {
+                    usersMap.delete(m.author.id);
+                }, TIME);
+                usersMap.set(m.author.id, {
+                    msgCount: 1,
+                    lastMessage: m,
+                    timer: fn,
                 });
             }
         }

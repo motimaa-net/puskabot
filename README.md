@@ -12,7 +12,7 @@
   </a>
 
   <a href="https://github.com/discordjs">
-    <img src="https://img.shields.io/badge/discord.js-v13.3.1-blue.svg?logo=npm" alt="shield.png">
+    <img src="https://img.shields.io/badge/discord.js-v13.5.0-blue.svg?logo=npm" alt="shield.png">
   </a>
 
   <a href="https://github.com/KasperiP/Moticord/blob/develop/LICENSE">
@@ -76,6 +76,7 @@ WARN_THRESHOLD = 4
 WARN_BAN_DAYS = 30
 
 DELETE_INVITES = true
+SPAM_HANDLER = true
 
 STAFF_ROLES = 123456789123456789,123456789123456789
 ```

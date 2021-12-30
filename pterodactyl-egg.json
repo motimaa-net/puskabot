@@ -226,6 +226,15 @@
             "rules": "required|string"
         },
         {
+            "name": "Spam handler",
+            "description": "Spam handler",
+            "env_variable": "SPAM_HANDLER",
+            "default_value": "true",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required|string"
+        },
+        {
             "name": "Staff roles",
             "description": "Staff roles",
             "env_variable": "STAFF_ROLES",

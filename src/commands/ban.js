@@ -50,13 +50,19 @@ module.exports = {
          * @type {boolean}
          */
         const silent = interaction.options.getBoolean('hiljainen');
-
         const errorEmbedBase = new MessageEmbed()
             .setColor(process.env.ERROR_COLOR)
             .setImage('https://i.stack.imgur.com/Fzh0w.png')
             .setAuthor({ name: 'Tapahtui virhe', iconURL: client.user.displayAvatarURL() })
             .setFooter(interaction.user.username, interaction.user.displayAvatarURL())
             .setTimestamp();
+
+        if (!member?.id) {
+            errorEmbedBase.setDescription(
+                `Kyseistä käyttäjää ei löytynyt! Käyttäjä on todennäköisesti poistunut palvelimelta!`,
+            );
+            return interaction.reply({ embeds: [errorEmbedBase], ephemeral: true });
+        }
 
         const isBanned = await Bans.findOne({ userId: member.id, active: true });
         if (isBanned) {

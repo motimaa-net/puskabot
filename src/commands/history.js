@@ -34,7 +34,6 @@ module.exports = {
          * @type {boolean}
          */
         const silent = interaction.options.getBoolean('hiljainen');
-
         await interaction.deferReply({ ephemeral: silent });
 
         const errorEmbedBase = new MessageEmbed()
@@ -43,6 +42,13 @@ module.exports = {
             .setAuthor({ name: 'Tapahtui virhe', iconURL: client.user.displayAvatarURL() })
             .setFooter(interaction.user.username, interaction.user.displayAvatarURL())
             .setTimestamp();
+
+        if (!member?.id) {
+            errorEmbedBase.setDescription(
+                `Kyseistä käyttäjää ei löytynyt! Käyttäjä on todennäköisesti poistunut palvelimelta!`,
+            );
+            return interaction.reply({ embeds: [errorEmbedBase], ephemeral: true });
+        }
 
         const infractionTypes = ['porttikielto', 'varoitus', 'mykistys'];
 

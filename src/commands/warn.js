@@ -48,6 +48,13 @@ module.exports = {
             .setFooter(interaction.user.username, interaction.user.displayAvatarURL())
             .setTimestamp();
 
+        if (!member?.id) {
+            errorEmbedBase.setDescription(
+                `Kyseistä käyttäjää ei löytynyt! Käyttäjä on todennäköisesti poistunut palvelimelta!`,
+            );
+            return interaction.reply({ embeds: [errorEmbedBase], ephemeral: true });
+        }
+
         // Validation
         const isBanned = await Bans.findOne({ userId: member.id, active: true });
         if (isBanned) {
