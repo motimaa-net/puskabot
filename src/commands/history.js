@@ -117,7 +117,7 @@ module.exports = {
         historyEmbed.addFields([
             {
                 name: 'Mykistyksiä yhteensä',
-                value: `${totalBans.length}`,
+                value: `${totalMutes.length}`,
                 inline: true,
             },
             {
