@@ -11,10 +11,18 @@ const logger = interaction => {
     interaction.options.data.forEach(option => {
         commandArgs.push(`(${option.name} = ${option.value})`);
     });
+
+    // Create a string of time in format HH:MM:SS. If the time is less than 10, add a 0 before it.
+    const time = `${now.getHours()}:${now.getMinutes()}:${now.getSeconds()}`;
+    const timeString = time
+        .split(':')
+        .map(t => (t.length === 1 ? `0${t}` : t))
+        .join(':');
+
     console.log(
-        `[${now.getHours()}:${now.getMinutes()}:${now.getSeconds()}] ${interaction.user.username} suoritti komennon ${
-            interaction.commandName
-        } ${commandArgs.join(' ')}`,
+        `[${timeString}] ${interaction.user.username} suoritti komennon ${interaction.commandName} ${commandArgs.join(
+            ' ',
+        )}`,
     );
 };
 
