@@ -1,4 +1,3 @@
-const axios = require('axios');
 const { Client } = require('discord.js');
 const cron = require('node-cron');
 const Bans = require('../models/banModel');
@@ -162,12 +161,10 @@ const cronTasks = {
      */
     precenceUpdater: client => {
         const updatePrecense = async () => {
-            /**
-             * @type {number}
-             */
-            const playerCount = (await axios.get('https://mcapi.us/server/status?ip=motimaa.net&port=25565')).data
-                .players.now;
-            return client.user.setActivity(`${playerCount} pelaajaa`, {
+            const members = await (await client.guilds.cache.get(process.env.GUILD_ID)).members.fetch();
+            const memberCount = members.filter(member => !member.user.bot).size;
+
+            return client.user.setActivity(`${memberCount} käyttäjää`, {
                 type: 'WATCHING',
             });
         };
