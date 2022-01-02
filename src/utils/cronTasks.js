@@ -54,7 +54,7 @@ const cronTasks = {
             removeExpiredBans();
 
             // Runs every hour
-            cron.schedule('0 * * * *', () => {
+            cron.schedule('*/15 * * * *', () => {
                 removeExpiredBans();
             });
         } catch (error) {
@@ -85,7 +85,7 @@ const cronTasks = {
             removeExpiredWarns();
 
             // Runs every hour
-            cron.schedule('0 * * * *', () => {
+            cron.schedule('*/15 * * * *', () => {
                 removeExpiredWarns();
             });
         } catch (error) {
@@ -139,7 +139,7 @@ const cronTasks = {
             removeExpiredMutes();
 
             // Runs every hour
-            cron.schedule('0 * * * *', () => {
+            cron.schedule('*/15 * * * *', () => {
                 removeExpiredMutes();
             });
         } catch (error) {
