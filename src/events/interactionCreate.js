@@ -1,7 +1,9 @@
 const { MessageEmbed, Client, Interaction, Permissions } = require('discord.js');
 const Bans = require('../models/banModel');
+const cronTasks = require('../utils/cronTasks');
 const logger = require('../utils/logger');
 const timeUtils = require('../utils/timeUtils');
+
 module.exports = {
     name: 'interactionCreate',
     /**
@@ -17,10 +19,13 @@ module.exports = {
             if (!interaction?.member.permissions.has(Permissions.FLAGS.MANAGE_MESSAGES)) return;
 
             const command = client.commands.get(interaction.commandName);
-
             if (!command) return;
 
             try {
+                await cronTasks.banHandler(client, false);
+                await cronTasks.warnHandler(client, false);
+                await cronTasks.muteHandler(client, false);
+
                 await command.execute(client, interaction);
                 logger(interaction);
                 return;

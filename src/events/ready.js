@@ -124,9 +124,9 @@ module.exports = {
 
             // Cron tasks
             cronTasks.precenceUpdater(client);
-            cronTasks.banHandler(client);
-            cronTasks.warnHandler(client);
-            cronTasks.muteHandler(client);
+            cronTasks.banHandler(client, true);
+            cronTasks.warnHandler(client, true);
+            cronTasks.muteHandler(client, true);
         })();
     },
 };

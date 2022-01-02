@@ -8,9 +8,10 @@ const Warns = require('../models/warnModel');
 const cronTasks = {
     /**
      * @description - Handles cron job for the bans.
+     * @param {boolean} isCron
      * @param {Client} client
      */
-    banHandler: client => {
+    banHandler: async (client, isCron) => {
         const removeExpiredBans = async () => {
             const activeBans = await Bans.find({ active: true });
             const expiredBans = [];
@@ -51,21 +52,25 @@ const cronTasks = {
         // Cron task for removing expired bans
         try {
             // Run after startup
-            removeExpiredBans();
+            await removeExpiredBans();
 
             // Runs every hour
-            cron.schedule('*/15 * * * *', () => {
-                removeExpiredBans();
-            });
+            if (isCron) {
+                cron.schedule('*/15 * * * *', () => {
+                    removeExpiredBans();
+                });
+            }
         } catch (error) {
             console.log(error);
         }
     },
 
     /**
+     * @param client
+     * @param {boolean} isCron
      * @description - Handles cron job for the warns.
      */
-    warnHandler: () => {
+    warnHandler: async (client, isCron) => {
         const removeExpiredWarns = async () => {
             const activeWarnings = await Warns.find({ active: true });
             const expiredWarns = [];
@@ -82,21 +87,24 @@ const cronTasks = {
         };
         try {
             // Run after startup
-            removeExpiredWarns();
+            await removeExpiredWarns();
 
             // Runs every hour
-            cron.schedule('*/15 * * * *', () => {
-                removeExpiredWarns();
-            });
+            if (isCron) {
+                cron.schedule('*/15 * * * *', () => {
+                    removeExpiredWarns();
+                });
+            }
         } catch (error) {
             console.log(error);
         }
     },
     /**
      * @description - Handles cron job for the mutes.
+     * @param {boolean} isCron
      * @param {Client} client
      */
-    muteHandler: client => {
+    muteHandler: async (client, isCron) => {
         const removeExpiredMutes = async () => {
             const activeMutes = await Mutes.find({ active: true });
             const expiredMutes = [];
@@ -136,17 +144,18 @@ const cronTasks = {
         // Cron task for removing expired bans
         try {
             // Run after startup
-            removeExpiredMutes();
+            await removeExpiredMutes();
 
             // Runs every hour
-            cron.schedule('*/15 * * * *', () => {
-                removeExpiredMutes();
-            });
+            if (isCron) {
+                cron.schedule('*/15 * * * *', () => {
+                    removeExpiredMutes();
+                });
+            }
         } catch (error) {
             console.log(error);
         }
     },
-
     /**
      * @description - Updates motimaa.net playercount to bot's precense.
      * @param {Client} client
