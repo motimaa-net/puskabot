@@ -8,8 +8,8 @@ const Warns = require('../models/warnModel');
 const cronTasks = {
     /**
      * @description - Handles cron job for the bans.
-     * @param {boolean} isCron
      * @param {Client} client
+     * @param {boolean} isCron
      */
     banHandler: async (client, isCron) => {
         const removeExpiredBans = async () => {
@@ -66,7 +66,7 @@ const cronTasks = {
     },
 
     /**
-     * @param client
+     * @param {Client} client
      * @param {boolean} isCron
      * @description - Handles cron job for the warns.
      */
@@ -101,8 +101,8 @@ const cronTasks = {
     },
     /**
      * @description - Handles cron job for the mutes.
-     * @param {boolean} isCron
      * @param {Client} client
+     * @param {boolean} isCron
      */
     muteHandler: async (client, isCron) => {
         const removeExpiredMutes = async () => {
