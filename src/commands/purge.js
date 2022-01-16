@@ -1,5 +1,5 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const { MessageEmbed, Client, CommandInteraction, GuildMember } = require('discord.js');
+const { MessageEmbed, Client, CommandInteraction, GuildMember, Interaction } = require('discord.js');
 
 /**
  * @description Kinda experimental feature. Probably has some bugs & is poorly tested.
