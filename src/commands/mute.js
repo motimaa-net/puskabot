@@ -1,5 +1,6 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { MessageEmbed, Client, CommandInteraction, GuildMember } = require('discord.js');
+const { purgeMessages } = require('./purge');
 const Bans = require('../models/banModel');
 const Mutes = require('../models/muteModel');
 const timeUtils = require('../utils/timeUtils');
@@ -23,6 +24,15 @@ module.exports = {
         )
         .addBooleanOption(option =>
             option.setName('hiljainen').setDescription('Haluatko mykistyksen olevan hiljainen (-s)?').setRequired(true),
+        )
+        .addStringOption(option =>
+            option
+                .setName('puhdista')
+                .setDescription('Poistetaanko käyttäjän viestejä ajalta:')
+                .addChoice('24h', '1')
+                .addChoice('4d', '4')
+                .addChoice('7d', '7')
+                .setRequired(false),
         ),
 
     /**
@@ -51,6 +61,11 @@ module.exports = {
          * @type {boolean}
          */
         const silent = interaction.options.getBoolean('hiljainen');
+
+        /**
+         * @type {string}
+         */
+        const deleteMessages = interaction.options.getString('puhdista');
 
         const errorEmbedBase = new MessageEmbed()
             .setColor(process.env.ERROR_COLOR)
@@ -136,6 +151,9 @@ module.exports = {
             );
             return interaction.reply({ embeds: [errorEmbedBase], ephemeral: true });
         }
+
+        if (deleteMessages) await purgeMessages(interaction, member, deleteMessages);
+
         // Initialize mute expiry date
         const expiresAt = new Date();
         expiresAt.setDate(expiresAt.getDate() + days);

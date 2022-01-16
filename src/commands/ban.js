@@ -1,5 +1,6 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { MessageEmbed, Permissions, Client, CommandInteraction, GuildMember } = require('discord.js');
+const { purgeMessages } = require('./purge');
 const Bans = require('../models/banModel');
 const timeUtils = require('../utils/timeUtils');
 
@@ -22,6 +23,15 @@ module.exports = {
         )
         .addIntegerOption(option =>
             option.setName('aika').setDescription('Kuinka monta päivää porttikielto kestää?').setRequired(false),
+        )
+        .addStringOption(option =>
+            option
+                .setName('puhdista')
+                .setDescription('Poistetaanko käyttäjän viestejä ajalta:')
+                .addChoice('24h', '1')
+                .addChoice('4d', '4')
+                .addChoice('7d', '7')
+                .setRequired(false),
         ),
 
     /**
@@ -47,8 +57,10 @@ module.exports = {
         const reason = interaction.options.getString('syy');
 
         /**
-         * @type {boolean}
+         * @type {string}
          */
+        const deleteMessages = interaction.options.getString('puhdista');
+
         const silent = interaction.options.getBoolean('hiljainen');
         const errorEmbedBase = new MessageEmbed()
             .setColor(process.env.ERROR_COLOR)
@@ -88,6 +100,7 @@ module.exports = {
             errorEmbedBase.setDescription(`Et voi antaa porttikieltoa botille!`);
             return interaction.reply({ embeds: [errorEmbedBase], ephemeral: true });
         }
+
         if (member.id === interaction.user.id) {
             errorEmbedBase.setDescription(`Et voi antaa porttikieltoa itsellesi!`);
             return interaction.reply({ embeds: [errorEmbedBase], ephemeral: true });
@@ -106,6 +119,8 @@ module.exports = {
             );
             return interaction.reply({ embeds: [errorEmbedBase], ephemeral: true });
         }
+
+        if (deleteMessages) await purgeMessages(interaction, member, deleteMessages);
 
         // Save user roles before ban
         const userRoles = [];
@@ -138,7 +153,6 @@ module.exports = {
             expiresAt: days ? expiresAt : null,
         });
         await newBan.save();
-
         const banEmbed = new MessageEmbed()
             .setColor(process.env.SUCCESS_COLOR)
             .setImage('https://i.stack.imgur.com/Fzh0w.png')
