@@ -77,7 +77,7 @@ module.exports = {
         ),
 
     /**
-     * @description Unmute command
+     * @description Purge command
      * @param {Client} client
      * @param {CommandInteraction} interaction
      * @returns {void}
