@@ -73,6 +73,12 @@ module.exports = {
                         .addChoice('4d', '4')
                         .addChoice('7d', '7')
                         .setRequired(true),
+                )
+                .addBooleanOption(option =>
+                    option
+                        .setName('hiljainen')
+                        .setDescription('Haluatko viestien poiston olevan hiljainen (-s)?')
+                        .setRequired(true),
                 ),
         ),
 
@@ -95,21 +101,40 @@ module.exports = {
          */
         const days = interaction.options.getString('aika');
 
+        /**
+         * @type {boolean}
+         */
+        const silent = interaction.options.getBoolean('hiljainen');
+
         if (subCommand === 'user') {
             const deleteCount = await purgeMessages(interaction, member, days);
 
-            const purgeEmbed = new MessageEmbed()
-                .setColor(process.env.SUCCESS_COLOR)
-                .setImage('https://i.stack.imgur.com/Fzh0w.png')
-                .setAuthor({ name: 'Viestit poistettu onnistuneesti', iconURL: client.user.displayAvatarURL() })
-                .setDescription(
-                    // eslint-disable-next-line max-len
-                    `Käyttäjän **${member.user.username}** viestit ajalta ${days} päivä(ä) poistettu onnistuneesti.`,
-                )
-                .addField('Viestejä poistettu', `${await deleteCount}kpl`)
-                .setFooter({ text: client.user.username, iconURL: client.user.displayAvatarURL() })
-                .setTimestamp();
-            interaction.reply({ embeds: [purgeEmbed], ephemeral: true });
+            if (deleteCount > 0) {
+                const purgeEmbed = new MessageEmbed()
+                    .setColor(process.env.SUCCESS_COLOR)
+                    .setImage('https://i.stack.imgur.com/Fzh0w.png')
+                    .setAuthor({ name: 'Viestit poistettu onnistuneesti', iconURL: client.user.displayAvatarURL() })
+                    .setDescription(
+                        // eslint-disable-next-line max-len
+                        `Käyttäjän **${member.user.username}** viestit ajalta ${days} päivä(ä) poistettu onnistuneesti.`,
+                    )
+                    .addField('Viestejä poistettu', `${deleteCount}kpl`)
+                    .setFooter({ text: client.user.username, iconURL: client.user.displayAvatarURL() })
+                    .setTimestamp();
+                return interaction.reply({ embeds: [purgeEmbed], ephemeral: silent });
+            } else {
+                const errorEmbed = new MessageEmbed()
+                    .setColor(process.env.ERROR_COLOR)
+                    .setImage('https://i.stack.imgur.com/Fzh0w.png')
+                    .setAuthor({ name: 'Tapahtui virhe', iconURL: client.user.displayAvatarURL() })
+                    .setDescription(
+                        // eslint-disable-next-line max-len
+                        `Käyttäjältä ei löytynyt poistettavia viestejä annetulla aikajanalla.`,
+                    )
+                    .setFooter({ text: client.user.username, iconURL: client.user.displayAvatarURL() })
+                    .setTimestamp();
+                return interaction.reply({ embeds: [errorEmbed], ephemeral: silent });
+            }
         }
     },
 };
