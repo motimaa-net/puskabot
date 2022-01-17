@@ -109,7 +109,7 @@ module.exports = {
                 .addField('Viestejä poistettu', `${await deleteCount}kpl`)
                 .setFooter({ text: client.user.username, iconURL: client.user.displayAvatarURL() })
                 .setTimestamp();
-            interaction.channel.send({ embeds: [purgeEmbed] });
+            interaction.reply({ embeds: [purgeEmbed], ephemeral: true });
         }
     },
 };
