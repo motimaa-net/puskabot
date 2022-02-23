@@ -91,5 +91,10 @@ module.exports = {
                 });
             }
         }
+        // TODO: Add suggestion channel to config (requires pterodactyl egg to be edited ZzZZz)
+        if(m.channel.id === "643450708540129290") {
+            await m.react('👍');
+            await m.react('👎');
+        }
     },
 };
