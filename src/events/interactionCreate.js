@@ -78,10 +78,11 @@ module.exports = {
                     .setTimestamp();
                 return interaction.reply({ embeds: [banInfoEmbed], ephemeral: true });
             } else if (interaction.customId.startsWith('selfRole-')) {
+                await interaction.deferReply({ ephemeral: true });
                 const roleId = interaction.customId.split('-')[1];
                 const roleToGive = interaction.guild.roles.cache.find(role => role.id === roleId);
                 if (!roleToGive) {
-                    return interaction.reply({
+                    return interaction.editReply({
                         content: 'Roolia ei löytynyt! Ilmoita tästä palvelimen ylläpitäjille.',
                         ephemeral: true,
                     });
@@ -89,20 +90,21 @@ module.exports = {
                 try {
                     if (!interaction.member.roles.cache.has(roleToGive.id)) {
                         await interaction.member.roles.add(roleToGive);
-                        return interaction.reply({
+                        return interaction.editReply({
                             content: `Olet lisännyt itsellesi roolin **${roleToGive.name}**!`,
                             ephemeral: true,
                         });
                     } else {
                         interaction.member.roles.remove(roleToGive.id);
-                        return interaction.reply({
+                        return interaction.editReply({
                             content: `Poistit itseltäsi roolin **${roleToGive.name}**!`,
                             ephemeral: true,
                         });
                     }
                 } catch (error) {
+                    if (error.code === 10062) return;
                     console.error(error);
-                    return interaction.reply({
+                    return interaction.editReply({
                         content: 'Tapahtui virhe! Ilmoita tästä palvelimen ylläpitäjille.',
                         ephemeral: true,
                     });
