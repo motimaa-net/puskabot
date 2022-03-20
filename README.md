@@ -56,34 +56,37 @@ to snag all of the dependencies. Of course, you need [node](https://nodejs.org/e
 
 ## Setting Up
 
-Rename`template.env` to `.env`. Your file should look something like this:
+Rename`example-config.json` to `config.json`. Your file should look something like this:
 
-```yaml
-BOT_TOKEN = YourBotToken
-MONGODB_URI = YourDatabaseURI
-GUILD_ID = YourGuildID
-CLIENT_ID = YourClientID
-
-SUCCESS_COLOR =  #55FF55
-ERROR_COLOR =  #FF5555
-EXPIRED_COLOR = #FFFF55
-
-BAN_ROLE = BanRoleID
-BAN_CHANNEL = BanChannelID
-
-WARN_EXPIRES = 7
-WARN_THRESHOLD = 4
-WARN_BAN_DAYS = 30
-
-DELETE_INVITES = true
-SPAM_HANDLER = true
-
-STAFF_ROLES = 123456789123456789,123456789123456789
+```json
+{
+    "BOT_TOKEN": "BOT_TOKEN",
+    "MONGODB_URI": "MONGODB_URI",
+    "CLIENT_ID": "CLIENT_ID",
+    "GUILD_ID": "GUILD_ID",
+    "STAFF_ROLES": ["STAFF_ROLE_ID"],
+    "ROLE_CHANNEL": "ROLE_CHANNEL_ID",
+    "COLORS": {
+        "SUCCESS": "#55FF55",
+        "ERROR": "#FF5555",
+        "WARNING": "#FFFF55"
+    },
+    "BAN_ROLE": "BAN_ROLE",
+    "BAN_CHANNEL": "BAN_CHANNEL",
+    "MUTE_ROLE": "MUTE_ROLE",
+    "TICKET_CHANNEL": "TICKET_CHANNEL_ID",
+    "TICKET_CATEGORY": "TICKET_CATEGORY_ID",
+    "WARN_EXPIRES": 30,
+    "WARN_THRESHOLD": 4,
+    "WARN_BAN_DAYS": 30,
+    "DELETE_INVITES": true,
+    "SPAN_HANDLER": false
+}
 ```
 
 Visit the Discord [developer portal](https://discordapp.com/developers/applications/) to create an app and use the client token you are given for the `BOT_TOKEN` option. `GUILD_ID` is your server's ID.
 
-After your `.env` file is built, you have to enable `Privileged Intents` on your Discord [developer portal](https://discordapp.com/developers/applications/). You can find these intents under the "Bot" section, and there are two ticks you have to switch on.
+After your `config.json` file is built, you have to enable `Privileged Intents` on your Discord [developer portal](https://discordapp.com/developers/applications/). You can find these intents under the "Bot" section, and there are two ticks you have to switch on.
 
 Once done, launch the bot using the command `node bot.js` or `nodemon bot.js`. If on Linux, you can also kick off using the `start.sh` script.
 
