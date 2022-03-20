@@ -1,5 +1,6 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { MessageEmbed, Client, CommandInteraction, GuildMember } = require('discord.js');
+const config = require('../../config.json');
 const Bans = require('../models/banModel');
 const Mutes = require('../models/muteModel');
 const Warns = require('../models/warnModel');
@@ -37,7 +38,7 @@ module.exports = {
         await interaction.deferReply({ ephemeral: silent });
 
         const errorEmbedBase = new MessageEmbed()
-            .setColor(process.env.ERROR_COLOR)
+            .setColor(config.COLORS.ERROR)
             .setImage('https://i.stack.imgur.com/Fzh0w.png')
             .setAuthor({ name: 'Tapahtui virhe', iconURL: client.user.displayAvatarURL() })
             .setFooter({ text: interaction.user.username, iconURL: interaction.user.displayAvatarURL() })
@@ -78,7 +79,7 @@ module.exports = {
         combinedInfractions.sort((a, b) => b.createdAt - a.createdAt);
 
         const historyEmbed = new MessageEmbed()
-            .setColor(process.env.SUCCESS_COLOR)
+            .setColor(config.COLORS.SUCCESS)
             .setImage('https://i.stack.imgur.com/Fzh0w.png')
             .setAuthor({
                 name: `Rikehistoria tiedot ${
@@ -180,7 +181,7 @@ module.exports = {
 
         combinedInfractions.forEach((infraction, index) => {
             const infinfractionsEmbed = new MessageEmbed()
-                .setColor(infraction.active ? process.env.SUCCESS_COLOR : process.env.EXPIRED_COLOR)
+                .setColor(infraction.active ? config.COLORS.SUCCESS : config.COLORS.WARNING)
                 .setImage('https://i.stack.imgur.com/Fzh0w.png')
                 .setAuthor({
                     name: `${infraction.type.charAt(0).toUpperCase() + infraction.type.substring(1)} (${index + 2}/${
@@ -208,7 +209,7 @@ module.exports = {
                           }
                         : {
                               name: 'Kesto',
-                              value: `${process.env.WARN_EXPIRES} päivää`,
+                              value: `${config.WARN_EXPIRES} päivää`,
                               inline: true,
                           },
                     infraction.length && infraction.removedType !== 'manual'

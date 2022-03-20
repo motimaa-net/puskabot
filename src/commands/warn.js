@@ -1,5 +1,6 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { MessageEmbed, Permissions, Client, GuildMember, CommandInteraction } = require('discord.js');
+const config = require('../../config.json');
 const Bans = require('../models/banModel');
 const Warns = require('../models/warnModel');
 const timeUtils = require('../utils/timeUtils');
@@ -42,7 +43,7 @@ module.exports = {
         const silent = interaction.options.getBoolean('hiljainen');
 
         const errorEmbedBase = new MessageEmbed()
-            .setColor(process.env.ERROR_COLOR)
+            .setColor(config.COLORS.ERROR)
             .setImage('https://i.stack.imgur.com/Fzh0w.png')
             .setAuthor({ name: 'Tapahtui virhe', iconURL: client.user.displayAvatarURL() })
             .setFooter({ text: interaction.user.username, iconURL: interaction.user.displayAvatarURL() })
@@ -82,7 +83,7 @@ module.exports = {
 
         // Initialize warning expiry date based on config
         const warnExpiresAt = new Date();
-        warnExpiresAt.setDate(warnExpiresAt.getDate() + parseInt(process.env.WARN_EXPIRES));
+        warnExpiresAt.setDate(warnExpiresAt.getDate() + parseInt(config.WARN_EXPIRES));
 
         const newWarn = new Warns({
             userId: member.id,
@@ -98,7 +99,7 @@ module.exports = {
 
         // If active warning are above threshhold then ban user
         const activeWarns = await Warns.find({ userId: member.id, active: true });
-        if (activeWarns.length === parseInt(process.env.WARN_THRESHOLD)) {
+        if (activeWarns.length === parseInt(config.WARN_THRESHOLD)) {
             // Get user's roles before banning
             const userRoles = [];
             await member.roles.cache
@@ -112,11 +113,11 @@ module.exports = {
             await member.roles.set([]);
 
             // Add ban role
-            member.roles.add(process.env.BAN_ROLE);
+            member.roles.add(config.BAN_ROLE);
 
             // Initialize ban expiry date based on config
             const banExpiresAt = new Date();
-            banExpiresAt.setDate(banExpiresAt.getDate() + parseInt(process.env.WARN_BAN_DAYS));
+            banExpiresAt.setDate(banExpiresAt.getDate() + parseInt(config.WARN_BAN_DAYS));
 
             const newBan = new Bans({
                 userId: member.id,
@@ -127,8 +128,8 @@ module.exports = {
 
                 roles: userRoles,
 
-                reason: `${process.env.WARN_THRESHOLD} aktiivista varoitusta`,
-                length: process.env.WARN_BAN_DAYS,
+                reason: `${config.WARN_THRESHOLD} aktiivista varoitusta`,
+                length: config.WARN_BAN_DAYS,
                 expiresAt: banExpiresAt,
             });
             await newBan.save();
@@ -137,13 +138,13 @@ module.exports = {
             await Warns.updateMany({ userId: member.id }, { $set: { active: false } });
 
             const banEmbed = new MessageEmbed()
-                .setColor(process.env.SUCCESS_COLOR)
+                .setColor(config.COLORS.SUCCESS)
                 .setImage('https://i.stack.imgur.com/Fzh0w.png')
                 .setAuthor({ name: 'Porttikielto myönnetty', iconURL: client.user.displayAvatarURL() })
                 .setDescription(`Käyttäjälle **${member.user.tag}** on myönnetty porttikielto!`)
                 .addFields([
                     { name: 'Käyttäjä', value: `${member.user.tag}`, inline: true },
-                    { name: 'Syynä', value: `${process.env.WARN_THRESHOLD} aktiivista varoitusta`, inline: true },
+                    { name: 'Syynä', value: `${config.WARN_THRESHOLD} aktiivista varoitusta`, inline: true },
                     {
                         name: 'Rankaisija',
                         value: `${interaction.user.username}`,
@@ -152,7 +153,7 @@ module.exports = {
                     { name: 'Annettu', value: `<t:${timeUtils.epochConverter(new Date())}:R>`, inline: true },
                     {
                         name: 'Kesto',
-                        value: `${process.env.WARN_BAN_DAYS} päivää`,
+                        value: `${config.WARN_BAN_DAYS} päivää`,
                         inline: true,
                     },
                     { name: 'Loppuu', value: `<t:${timeUtils.epochConverter(banExpiresAt)}:R>`, inline: true },
@@ -192,7 +193,7 @@ module.exports = {
             return;
         }
         const warnEmbed = new MessageEmbed()
-            .setColor(process.env.SUCCESS_COLOR)
+            .setColor(config.COLORS.SUCCESS)
             .setImage('https://i.stack.imgur.com/Fzh0w.png')
             .setAuthor({ name: 'Käyttäjää varoitettu', iconURL: client.user.displayAvatarURL() })
             .setDescription(`Käyttäjälle **${member.user.tag}** on annettu varoitus!`)
@@ -207,16 +208,14 @@ module.exports = {
                 { name: 'Annettu', value: `<t:${timeUtils.epochConverter(new Date())}:R>`, inline: true },
                 {
                     name: 'Kesto',
-                    value: `${process.env.WARN_EXPIRES} päivää`,
+                    value: `${config.WARN_EXPIRES} päivää`,
                     inline: true,
                 },
                 { name: 'Vanhenee', value: `<t:${timeUtils.epochConverter(warnExpiresAt)}:R>`, inline: true },
                 {
                     name: 'Aktiiviset varoitukset',
                     value: `${
-                        activeWarns
-                            ? `${activeWarns.length}/${process.env.WARN_THRESHOLD}`
-                            : `0/${process.env.WARN_THRESHOLD}`
+                        activeWarns ? `${activeWarns.length}/${config.WARN_THRESHOLD}` : `0/${config.WARN_THRESHOLD}`
                     }`,
                     inline: true,
                 },
@@ -230,7 +229,7 @@ module.exports = {
         member
             .send({
                 // eslint-disable-next-line max-len
-                content: `Olet saanut varoituksen palvelimella **${interaction.guild.name}**. Mikäli saavutat ${process.env.WARN_THRESHOLD} aktiivista varoitusta saat porttikiellon palvelimelta ${process.env.WARN_BAN_DAYS} päivän ajaksi. Tässä vielä muistutus varoituksestasi :)`,
+                content: `Olet saanut varoituksen palvelimella **${interaction.guild.name}**. Mikäli saavutat ${config.WARN_THRESHOLD} aktiivista varoitusta saat porttikiellon palvelimelta ${config.WARN_BAN_DAYS} päivän ajaksi. Tässä vielä muistutus varoituksestasi :)`,
                 embeds: [warnEmbed],
             })
             .catch(e => {

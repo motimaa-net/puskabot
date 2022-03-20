@@ -1,5 +1,6 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { MessageEmbed, Permissions, Client, CommandInteraction, GuildMember } = require('discord.js');
+const config = require('../../config.json');
 const Warns = require('../models/warnModel');
 
 module.exports = {
@@ -44,7 +45,7 @@ module.exports = {
         const silent = interaction.options.getBoolean('hiljainen');
 
         const errorEmbedBase = new MessageEmbed()
-            .setColor(process.env.ERROR_COLOR)
+            .setColor(config.COLORS.ERROR)
             .setImage('https://i.stack.imgur.com/Fzh0w.png')
             .setAuthor({ name: 'Tapahtui virhe', iconURL: client.user.displayAvatarURL() })
             .setFooter({ text: interaction.user.username, iconURL: interaction.user.displayAvatarURL() })
@@ -92,7 +93,7 @@ module.exports = {
         await activeWarnings.shift();
 
         const unwarnEmbed = new MessageEmbed()
-            .setColor(process.env.SUCCESS_COLOR)
+            .setColor(config.COLORS.SUCCESS)
             .setImage('https://i.stack.imgur.com/Fzh0w.png')
             .setAuthor({ name: 'Viimeisin varoitus poistettu', iconURL: client.user.displayAvatarURL() })
             .setDescription(`Käyttäjän **${member.user.tag}** viimeisin varoitus on poistettu!`)
@@ -106,7 +107,7 @@ module.exports = {
                 },
                 {
                     name: 'Aktiiviset varoitukset',
-                    value: `${activeWarnings.length}/${process.env.WARN_THRESHOLD}`,
+                    value: `${activeWarnings.length}/${config.WARN_THRESHOLD}`,
                     inline: true,
                 },
             ])

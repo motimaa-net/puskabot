@@ -1,4 +1,5 @@
 const { Client, GuildMember } = require('discord.js');
+const config = require('../../config.json');
 const Bans = require('../models/banModel');
 
 module.exports = {
@@ -25,7 +26,7 @@ module.exports = {
                 },
             );
 
-            guildMember.roles.add(process.env.BAN_ROLE);
+            guildMember.roles.add(config.BAN_ROLE);
         }
     },
 };

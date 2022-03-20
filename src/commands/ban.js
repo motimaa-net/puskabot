@@ -1,6 +1,7 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { MessageEmbed, Permissions, Client, CommandInteraction, GuildMember } = require('discord.js');
 const { purgeMessages } = require('./purge');
+const config = require('../../config.json');
 const Bans = require('../models/banModel');
 const timeUtils = require('../utils/timeUtils');
 
@@ -63,7 +64,7 @@ module.exports = {
 
         const silent = interaction.options.getBoolean('hiljainen');
         const errorEmbedBase = new MessageEmbed()
-            .setColor(process.env.ERROR_COLOR)
+            .setColor(config.COLORS.ERROR)
             .setImage('https://i.stack.imgur.com/Fzh0w.png')
             .setAuthor({ name: 'Tapahtui virhe', iconURL: client.user.displayAvatarURL() })
             .setFooter({ text: interaction.user.username, iconURL: interaction.user.displayAvatarURL() })
@@ -133,7 +134,7 @@ module.exports = {
                 }
             });
         await member.roles.set([]);
-        member.roles.add(process.env.BAN_ROLE);
+        member.roles.add(config.BAN_ROLE);
 
         // Initialize ban expiry date
         const expiresAt = new Date();
@@ -154,7 +155,7 @@ module.exports = {
         });
         await newBan.save();
         const banEmbed = new MessageEmbed()
-            .setColor(process.env.SUCCESS_COLOR)
+            .setColor(config.COLORS.SUCCESS)
             .setImage('https://i.stack.imgur.com/Fzh0w.png')
             .setAuthor({ name: 'Porttikielto myönnetty', iconURL: client.user.displayAvatarURL() })
             .setDescription(`Käyttäjälle **${member.user.tag}** on myönnetty porttikielto!`)

@@ -1,5 +1,6 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { MessageEmbed, Client, CommandInteraction, GuildMember, Interaction } = require('discord.js');
+const config = require('../../config.json');
 
 /**
  * @description Kinda experimental feature. Probably has some bugs & is poorly tested.
@@ -111,7 +112,7 @@ module.exports = {
 
             if (deleteCount > 0) {
                 const purgeEmbed = new MessageEmbed()
-                    .setColor(process.env.SUCCESS_COLOR)
+                    .setColor(config.COLORS.SUCCESS)
                     .setImage('https://i.stack.imgur.com/Fzh0w.png')
                     .setAuthor({ name: 'Viestit poistettu onnistuneesti', iconURL: client.user.displayAvatarURL() })
                     .setDescription(
@@ -124,7 +125,7 @@ module.exports = {
                 return interaction.reply({ embeds: [purgeEmbed], ephemeral: silent });
             } else {
                 const errorEmbed = new MessageEmbed()
-                    .setColor(process.env.ERROR_COLOR)
+                    .setColor(config.COLORS.ERROR)
                     .setImage('https://i.stack.imgur.com/Fzh0w.png')
                     .setAuthor({ name: 'Tapahtui virhe', iconURL: client.user.displayAvatarURL() })
                     .setDescription(

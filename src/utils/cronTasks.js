@@ -1,5 +1,6 @@
 const { Client } = require('discord.js');
 const cron = require('node-cron');
+const config = require('../../config.json');
 const Bans = require('../models/banModel');
 const Mutes = require('../models/muteModel');
 const Warns = require('../models/warnModel');
@@ -22,7 +23,7 @@ const cronTasks = {
 
                     // Fetch the banned user and give old roles back if user is still on server + send message to user that ban has expired
                     client.guilds.cache
-                        .get(process.env.GUILD_ID)
+                        .get(config.GUILD_ID)
                         .members.fetch(banToCheck.userId)
                         .then(member => {
                             if (member) {
@@ -115,7 +116,7 @@ const cronTasks = {
 
                     // Fetch the banned user and give old roles back if user is still on server + send message to user that ban has expired
                     client.guilds.cache
-                        .get(process.env.GUILD_ID)
+                        .get(config.GUILD_ID)
                         .members.fetch(muteToCheck.userId)
                         .then(member => {
                             if (member) {
@@ -161,7 +162,7 @@ const cronTasks = {
      */
     precenceUpdater: client => {
         const updatePrecense = async () => {
-            const members = await (await client.guilds.cache.get(process.env.GUILD_ID)).members.fetch();
+            const members = await (await client.guilds.cache.get(config.GUILD_ID)).members.fetch();
             const memberCount = members.filter(member => !member.user.bot).size;
 
             return client.user.setActivity(`${memberCount} käyttäjää`, {

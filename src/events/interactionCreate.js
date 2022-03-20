@@ -1,4 +1,5 @@
 const { MessageEmbed, Client, Interaction, Permissions } = require('discord.js');
+const config = require('../../config.json');
 const Bans = require('../models/banModel');
 const cronTasks = require('../utils/cronTasks');
 const logger = require('../utils/logger');
@@ -43,7 +44,7 @@ module.exports = {
                     return interaction.reply({ content: 'Sinulla ei ole porttikieltoa!', ephemeral: true });
                 }
                 const banInfoEmbed = new MessageEmbed()
-                    .setColor(process.env.SUCCESS_COLOR)
+                    .setColor(config.COLORS.SUCCESS)
                     .setImage('https://i.stack.imgur.com/Fzh0w.png')
                     .setAuthor({ name: 'Porttikielto myönnetty', iconURL: client.user.displayAvatarURL() })
                     .setDescription(`Sinulle on myönnetty porttikielto!`)

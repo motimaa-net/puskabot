@@ -1,6 +1,6 @@
-require('dotenv').config();
 const { readdirSync } = require('fs');
 const { Client, Intents, Collection } = require('discord.js');
+const config = require('./config.json');
 
 const client = new Client({
     intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_MEMBERS],
@@ -26,4 +26,4 @@ for (const file of commandFiles) {
 }
 
 // Initialize client
-client.login(process.env.BOT_TOKEN);
+client.login(config.BOT_TOKEN);

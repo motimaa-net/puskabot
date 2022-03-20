@@ -1,4 +1,5 @@
 const { Client, Message, Permissions } = require('discord.js');
+const config = require('../../config.json');
 
 const usersMap = new Map();
 const LIMIT = 7;
@@ -19,7 +20,7 @@ module.exports = {
         if (m.author.bot) return;
         if (m.member.permissions.has(Permissions.FLAGS.MANAGE_MESSAGES)) return;
 
-        if (process.env.DELETE_INVITES === 'true') {
+        if (config.DELETE_INVITES) {
             const inviteRegex =
                 /(https:\/\/)?(www\.)?(((discord(app)?)?\.com\/invite)|((discord(app)?)?\.gg))\/(?<invite>.+)/gm;
 
@@ -47,7 +48,7 @@ module.exports = {
                 }
             }
         }
-        if (process.env.SPAM_HANDLER === 'true') {
+        if (config.SPAN_HANDLER) {
             if (usersMap.has(m.author.id)) {
                 const userData = usersMap.get(m.author.id);
                 const { lastMessage, timer } = userData;
@@ -92,7 +93,7 @@ module.exports = {
             }
         }
         // TODO: Add suggestion channel to config (requires pterodactyl egg to be edited ZzZZz)
-        if(m.channel.id === "643450708540129290") {
+        if (m.channel.id === '643450708540129290') {
             await m.react('👍');
             await m.react('👎');
         }

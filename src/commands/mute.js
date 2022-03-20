@@ -1,6 +1,7 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { MessageEmbed, Client, CommandInteraction, GuildMember } = require('discord.js');
 const { purgeMessages } = require('./purge');
+const config = require('../../config.json');
 const Bans = require('../models/banModel');
 const Mutes = require('../models/muteModel');
 const timeUtils = require('../utils/timeUtils');
@@ -68,7 +69,7 @@ module.exports = {
         const deleteMessages = interaction.options.getString('puhdista');
 
         const errorEmbedBase = new MessageEmbed()
-            .setColor(process.env.ERROR_COLOR)
+            .setColor(config.COLORS.ERROR)
             .setImage('https://i.stack.imgur.com/Fzh0w.png')
             .setAuthor({ name: 'Tapahtui virhe', iconURL: client.user.displayAvatarURL() })
             .setFooter({ text: interaction.user.username, iconURL: interaction.user.displayAvatarURL() })
@@ -174,7 +175,7 @@ module.exports = {
         await newMute.save();
 
         const muteEmbed = new MessageEmbed()
-            .setColor(process.env.SUCCESS_COLOR)
+            .setColor(config.COLORS.SUCCESS)
             .setImage('https://i.stack.imgur.com/Fzh0w.png')
             .setAuthor({ name: 'Mykistys myönnetty', iconURL: client.user.displayAvatarURL() })
             .setDescription(`Käyttäjälle **${member.user.tag}** on myönnetty mykistys!`)

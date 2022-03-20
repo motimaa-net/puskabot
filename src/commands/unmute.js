@@ -1,5 +1,6 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { MessageEmbed, Client, CommandInteraction, GuildMember } = require('discord.js');
+const config = require('../../config.json');
 const Mutes = require('../models/muteModel');
 const timeUtils = require('../utils/timeUtils');
 
@@ -37,7 +38,7 @@ module.exports = {
         const silent = interaction.options.getBoolean('hiljainen');
 
         const errorEmbedBase = new MessageEmbed()
-            .setColor(process.env.ERROR_COLOR)
+            .setColor(config.COLORS.ERROR)
             .setImage('https://i.stack.imgur.com/Fzh0w.png')
             .setAuthor({ name: 'Tapahtui virhe', iconURL: client.user.displayAvatarURL() })
             .setFooter({ text: interaction.user.username, iconURL: interaction.user.displayAvatarURL() })
@@ -71,7 +72,7 @@ module.exports = {
         );
 
         const unmuteEmbed = new MessageEmbed()
-            .setColor(process.env.SUCCESS_COLOR)
+            .setColor(config.COLORS.SUCCESS)
             .setImage('https://i.stack.imgur.com/Fzh0w.png')
             .setAuthor({ name: 'Mykistys poistettu', iconURL: client.user.displayAvatarURL() })
             .setDescription(`Käyttäjän **${member.user.tag}** mykistys on poistettu!`)

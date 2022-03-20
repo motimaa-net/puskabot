@@ -1,5 +1,6 @@
 const { ButtonPaginator, PaginatorEvents } = require('@psibean/discord.js-pagination');
 const { Message, MessageEmbed } = require('discord.js');
+const config = require('../../config.json');
 
 const paginationHandler = async (interaction, pages) => {
     const buttons = [
@@ -78,7 +79,7 @@ const paginationHandler = async (interaction, pages) => {
             components[0].components.forEach(component => {
                 component.disabled = true;
             });
-            embed.setColor(process.env.ERROR_COLOR);
+            embed.setColor(config.COLORS.ERROR);
             return interaction.editReply({
                 embeds: [embed],
                 components: components,
@@ -103,7 +104,7 @@ const paginationHandler = async (interaction, pages) => {
             components[0].components.forEach(component => {
                 component.disabled = true;
             });
-            embed.setColor(process.env.ERROR_COLOR);
+            embed.setColor(config.COLORS.ERROR);
             return interaction.editReply({
                 embeds: [embed],
                 components: components,
