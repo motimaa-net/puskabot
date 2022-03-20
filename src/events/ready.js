@@ -131,24 +131,44 @@ module.exports = {
                     '\u001b[37m VIRHE: Rooli kanavaa ei löytynyt. Täytä .env tiedoston ROLE_CHANNEL oikealla kanavan ID:llä.',
                 );
             }
+
+            const roleRows = [];
+            const requiredLoops = Math.ceil(config.SELF_ROLES.length / 5);
+            for (let y = 0; y < requiredLoops; y++) {
+                const roleButtonsRow = new MessageActionRow();
+
+                // Make roles to loop variable.
+                const rolesToLoop = config.SELF_ROLES.slice(y * 5, (y + 1) * 5);
+
+                for (let x = 0; x < rolesToLoop.length; x++) {
+                    const role = rolesToLoop[x];
+                    roleButtonsRow.addComponents(
+                        // eslint-disable-next-line newline-per-chained-call
+                        new MessageButton()
+                            .setCustomId(`selfRole-${role.ID}`)
+                            .setLabel(role.NAME)
+                            .setStyle('PRIMARY')
+                            .setEmoji(role.EMOJI),
+                    );
+                }
+
+                roleRows.push(roleButtonsRow);
+            }
+
             // If channel is empty send ban embed to the channel
             if ((await selfRoleChannel.messages.fetch()).size === 0) {
                 const banInfoEmbed = new MessageEmbed()
                     .setColor(config.COLORS.SUCCESS)
                     .setImage('https://i.stack.imgur.com/Fzh0w.png')
-                    .setAuthor({ name: 'Olet saanut porttikiellon', iconURL: client.user.displayAvatarURL() })
+                    .setAuthor({ name: 'Valitse roolisi', iconURL: client.user.displayAvatarURL() })
                     .setDescription(
                         // eslint-disable-next-line max-len
-                        `Olet saanut porttikiellon **${selfRoleChannel.guild.name}** Discord-palvelimella. Tältä kanavalta saat tietoa porttikieltosi kestosta. Sinua ei poisteta palvelimelta porttikieltosi aikana. Kun porttikieltosi vanhenee, näet jälleen kaikki kanavat.`,
+                        `Painamalla alla olevia nappeja voit valita itsellesi eri rooleja, joiden avulla näet sinulle kohdennettuja kanavia sekä saat ilmoituksia palvelimelta rooliesi mukaan. Voit poistaa itseltäsi roolin painamalla nappia uudelleen.`,
                     )
                     .setFooter({ text: client.user.username, iconURL: client.user.displayAvatarURL() })
                     .setTimestamp();
-                const banButtons = new MessageActionRow().addComponents(
-                    // eslint-disable-next-line newline-per-chained-call
-                    new MessageButton().setCustomId('banInfo').setLabel('Porttikielto').setStyle('DANGER'),
-                );
 
-                selfRoleChannel.send({ embeds: [banInfoEmbed], components: [banButtons] });
+                selfRoleChannel.send({ embeds: [banInfoEmbed], components: roleRows });
             }
 
             console.log('\u001b[37m(5/5) Botti on valmiina käyttöön.');

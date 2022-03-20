@@ -77,6 +77,36 @@ module.exports = {
                     .setFooter({ text: interaction.user.username, iconURL: interaction.user.displayAvatarURL() })
                     .setTimestamp();
                 return interaction.reply({ embeds: [banInfoEmbed], ephemeral: true });
+            } else if (interaction.customId.startsWith('selfRole-')) {
+                const roleId = interaction.customId.split('-')[1];
+                const roleToGive = interaction.guild.roles.cache.find(role => role.id === roleId);
+                if (!roleToGive) {
+                    return interaction.reply({
+                        content: 'Roolia ei löytynyt! Ilmoita tästä palvelimen ylläpitäjille.',
+                        ephemeral: true,
+                    });
+                }
+                try {
+                    if (!interaction.member.roles.cache.has(roleToGive.id)) {
+                        await interaction.member.roles.add(roleToGive);
+                        return interaction.reply({
+                            content: `Olet lisännyt itsellesi roolin **${roleToGive.name}**!`,
+                            ephemeral: true,
+                        });
+                    } else {
+                        interaction.member.roles.remove(roleToGive.id);
+                        return interaction.reply({
+                            content: `Poistit itseltäsi roolin **${roleToGive.name}**!`,
+                            ephemeral: true,
+                        });
+                    }
+                } catch (error) {
+                    console.error(error);
+                    return interaction.reply({
+                        content: 'Tapahtui virhe! Ilmoita tästä palvelimen ylläpitäjille.',
+                        ephemeral: true,
+                    });
+                }
             }
         }
     },

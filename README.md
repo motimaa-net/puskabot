@@ -80,7 +80,29 @@ Rename`example-config.json` to `config.json`. Your file should look something li
     "WARN_THRESHOLD": 4,
     "WARN_BAN_DAYS": 30,
     "DELETE_INVITES": true,
-    "SPAN_HANDLER": false
+    "SPAN_HANDLER": false,
+    "SELF_ROLES": [
+        {
+            "ID": "ROLE_ID",
+            "NAME": "Minecraft",
+            "EMOJI": "⛏"
+        },
+        {
+            "ID": "ROLE_ID",
+            "NAME": "FiveM",
+            "EMOJI": "👮"
+        },
+        {
+            "ID": "ROLE_ID",
+            "NAME": "Yhteisö",
+            "EMOJI": "✨"
+        },
+        {
+            "ID": "ROLE_ID",
+            "NAME": "Viikkokooste",
+            "EMOJI": "👥"
+        }
+    ]
 }
 ```
 
