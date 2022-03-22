@@ -56,7 +56,7 @@ to snag all of the dependencies. Of course, you need [node](https://nodejs.org/e
 
 ## Setting Up
 
-Rename`example-config.json` to `config.json`. Your file should look something like this:
+Rename `example-config.json` to `config.json`. Your file should look something like this:
 
 ```json
 {
