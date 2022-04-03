@@ -23,9 +23,10 @@ module.exports = {
             if (!command) return;
 
             try {
-                await cronTasks.banHandler(client, false);
-                await cronTasks.warnHandler(client, false);
-                await cronTasks.muteHandler(client, false);
+                const banPromise = cronTasks.banHandler(client, false);
+                const cronPromise = cronTasks.warnHandler(client, false);
+                const mutePromise = cronTasks.muteHandler(client, false);
+                await Promise.all([banPromise, cronPromise, mutePromise]);
 
                 await command.execute(client, interaction);
                 logger(interaction);
