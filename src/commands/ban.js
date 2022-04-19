@@ -62,6 +62,8 @@ module.exports = {
          */
         const deleteMessages = interaction.options.getString('puhdista');
 
+        await interaction.deferReply({ ephemeral: silent });
+
         const silent = interaction.options.getBoolean('hiljainen');
         const errorEmbedBase = new MessageEmbed()
             .setColor(config.COLORS.ERROR)
@@ -74,7 +76,7 @@ module.exports = {
             errorEmbedBase.setDescription(
                 `Kyseistä käyttäjää ei löytynyt! Käyttäjä on todennäköisesti poistunut palvelimelta!`,
             );
-            return interaction.reply({ embeds: [errorEmbedBase], ephemeral: true });
+            return interaction.editReply({ embeds: [errorEmbedBase], ephemeral: true });
         }
 
         const isBanned = await Bans.findOne({ userId: member.id, active: true });
@@ -93,32 +95,32 @@ module.exports = {
                     ? { name: 'Loppuu', value: `<t:${timeUtils.epochConverter(isBanned.expiresAt)}:R>`, inline: true }
                     : { name: '\u200B', value: `\u200B`, inline: true },
             ]);
-            return interaction.reply({ embeds: [errorEmbedBase], ephemeral: true });
+            return interaction.editReply({ embeds: [errorEmbedBase], ephemeral: true });
         }
 
         // Validation
         if (member.bot) {
             errorEmbedBase.setDescription(`Et voi antaa porttikieltoa botille!`);
-            return interaction.reply({ embeds: [errorEmbedBase], ephemeral: true });
+            return interaction.editReply({ embeds: [errorEmbedBase], ephemeral: true });
         }
 
         if (member.id === interaction.user.id) {
             errorEmbedBase.setDescription(`Et voi antaa porttikieltoa itsellesi!`);
-            return interaction.reply({ embeds: [errorEmbedBase], ephemeral: true });
+            return interaction.editReply({ embeds: [errorEmbedBase], ephemeral: true });
         }
         if (member.permissions.has(Permissions.FLAGS.ADMINISTRATOR)) {
             errorEmbedBase.setDescription(`Et voi antaa porttikieltoa ylläpitäjälle!`);
-            return interaction.reply({ embeds: [errorEmbedBase], ephemeral: true });
+            return interaction.editReply({ embeds: [errorEmbedBase], ephemeral: true });
         }
         if (reason.length < 4 || reason.length > 200) {
             errorEmbedBase.setDescription(`Porttikiellon syyn täytyy olla 4-200 merkkiä pitkä!`);
-            return interaction.reply({ embeds: [errorEmbedBase], ephemeral: true });
+            return interaction.editReply({ embeds: [errorEmbedBase], ephemeral: true });
         }
         if (days && (days < 1 || days > 365)) {
             errorEmbedBase.setDescription(
                 `Porttikiellon keston täytyy olla 1-365 päivää! Voit myös antaa ikuisen porttikiellon jättämällä aika-arvon huomioimatta.`,
             );
-            return interaction.reply({ embeds: [errorEmbedBase], ephemeral: true });
+            return interaction.editReply({ embeds: [errorEmbedBase], ephemeral: true });
         }
 
         if (deleteMessages) await purgeMessages(interaction, member, deleteMessages);
@@ -180,6 +182,6 @@ module.exports = {
             .setFooter({ text: interaction.user.username, iconURL: interaction.user.displayAvatarURL() })
             .setTimestamp();
 
-        interaction.reply({ embeds: [banEmbed], ephemeral: silent });
+        interaction.editReply({ embeds: [banEmbed], ephemeral: silent });
     },
 };
