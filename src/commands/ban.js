@@ -62,9 +62,13 @@ module.exports = {
          */
         const deleteMessages = interaction.options.getString('puhdista');
 
+        /**
+         * @type {boolean}
+         */
+        const silent = interaction.options.getBoolean('hiljainen');
+
         await interaction.deferReply({ ephemeral: silent });
 
-        const silent = interaction.options.getBoolean('hiljainen');
         const errorEmbedBase = new MessageEmbed()
             .setColor(config.COLORS.ERROR)
             .setImage('https://i.stack.imgur.com/Fzh0w.png')
