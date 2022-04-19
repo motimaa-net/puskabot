@@ -1,4 +1,4 @@
-const { Client, Message, Permissions } = require('discord.js');
+const { Client, Message } = require('discord.js');
 const config = require('../../config.json');
 
 const usersMap = new Map();
@@ -18,7 +18,10 @@ module.exports = {
      */
     async execute(client, m) {
         if (m.author.bot) return;
-        if (m.member.permissions.has(Permissions.FLAGS.MANAGE_MESSAGES)) return;
+
+        // If staff member return
+        const staff = m.member.roles.cache.some(r => config.STAFF_ROLES.includes(r.id));
+        if (staff) return;
 
         if (config.DELETE_INVITES) {
             const inviteRegex =
