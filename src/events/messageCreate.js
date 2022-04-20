@@ -25,7 +25,7 @@ module.exports = {
 
         if (config.DELETE_INVITES) {
             const inviteRegex =
-                /(https:\/\/)?(www\.)?(((discord(app)?)?\.com\/invite)|((discord(app)?)?\.gg))\/(?<invite>.+)/gm;
+                /(https?:\/\/)?(www\.)?(discord\.(gg|io|me|li)|discordapp\.com\/invite)\/[^\s/]+?(?=\b)/gm;
 
             if (inviteRegex.test(m.content)) {
                 // Get the invite from string
