@@ -1,6 +1,6 @@
 <h1 align="center">
   <br>
-  Moticord
+  Puskabot
 </h1>
 
 <h3 align=center>Multipurpose Discord-bot for one of the Finland's biggest Discord-servers, Puskaradio. Built with latest and greatest <a href=https://github.com/discordjs/discord.js>discord.js</a></h3>
@@ -15,7 +15,7 @@
     <img src="https://img.shields.io/badge/discord.js-v13.5.0-blue.svg?logo=npm" alt="shield.png">
   </a>
 
-  <a href="https://github.com/KasperiP/Moticord/blob/develop/LICENSE">
+  <a href="https://github.com/motimaa-net/puskabot/blob/develop/LICENSE">
     <img src="https://img.shields.io/badge/license-GNU%20GPL%20v3-green" alt="shield.png">
   </a>
 
@@ -34,7 +34,7 @@
 
 ## About
 
-Moticord is an open source Discord-bot designed to meet the needs of one of Finland's largest Discord servers. It's codebase serves as a base framework to easily create Discord bots of all kinds. You can join the official [Puskaradio](https://discord.com/invite/Eggb2w7) and see Moticord in action. _Puhumme suomea_!
+Puskabot is an open source Discord-bot designed to meet the needs of one of Finland's largest Discord servers. It's codebase serves as a base framework to easily create Discord bots of all kinds. You can join the official [Puskaradio](https://discord.com/invite/Eggb2w7) and see Puskabot in action. _Puhumme suomea_!
 
 If you liked this repository, feel free to leave a star ⭐!
 
@@ -43,7 +43,7 @@ If you liked this repository, feel free to leave a star ⭐!
 You can clone this repo and host the bot yourself.
 
 ```
-git clone https://github.com/KasperiP/Moticord.git
+git clone https://github.com/motimaa-net/puskabot.git
 ```
 
 After cloning, run an
@@ -114,7 +114,7 @@ Once done, launch the bot using the command `node bot.js` or `nodemon bot.js`. I
 
 ## To-Do
 
-Moticord is in a continuous state of development. New features/updates may come at any time. Some pending ideas are:
+Puskabot is in a continuous state of development. New features/updates may come at any time. Some pending ideas are:
 
 -   Nothing atm? Ideas?
 
