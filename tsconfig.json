@@ -10,6 +10,7 @@
     "experimentalDecorators": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
+    "allowJs": true,
     "allowSyntheticDefaultImports": true,
     "resolveJsonModule": true,
     "forceConsistentCasingInFileNames": true,
@@ -19,6 +20,6 @@
     "baseUrl": "./"
   },
   "files": ["src/bot.ts"],
-  "include": ["./**/*.ts"],
+  "include": ["./**/*.ts", "src/utils/paginationHandler.js"],
   "exclude": ["node_modules", "dist"]
 }

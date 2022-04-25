@@ -1,25 +1,19 @@
-const { CommandInteraction } = require("discord.js");
+import { CommandInteraction } from "discord.js";
 
-/**
- * @description Logs interactions to console
- * @param {CommandInteraction} interaction
- * @returns {void}
- */
-const logger = (interaction) => {
+export const logger = (interaction: CommandInteraction) => {
   const now = new Date();
-  const commandArgs = [];
+  const commandArgs: string[] = [];
   const subCommand = interaction.options.data[0]?.type === "SUB_COMMAND";
-  const member = interaction.options.getMember("käyttäjä");
+  const member = interaction.options.getMember("käyttäjä", true);
+  const user = interaction.options.getUser("käyttäjä", true);
 
   const commandOptions = subCommand
     ? interaction.options.data[0].options
     : interaction.options.data;
 
-  commandOptions.forEach((option) => {
+  commandOptions?.forEach((option) => {
     if (option.name === "käyttäjä" && member) {
-      commandArgs.push(
-        `(${option.name}: ${member.user.tag} / ID: ${member.id})`
-      );
+      commandArgs.push(`(${option.name}: ${user.tag} / ID: ${user.id})`);
     } else {
       commandArgs.push(`(${option.name} = ${option.value})`);
     }
@@ -40,5 +34,3 @@ const logger = (interaction) => {
     } ${commandArgs.join(" ")}`
   );
 };
-
-module.exports = logger;

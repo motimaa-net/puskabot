@@ -1,6 +1,8 @@
 import { Client, Collection, Intents } from "discord.js";
 import { readdirSync } from "fs";
-import config from "./config.json";
+import { config } from "./config";
+
+export type ClientType = {};
 
 const client = new Client({
   intents: [

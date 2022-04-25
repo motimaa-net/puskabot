@@ -1,61 +1,60 @@
-const { SlashCommandBuilder } = require("@discordjs/builders");
-const {
-  MessageEmbed,
+import { SlashCommandBuilder } from "@discordjs/builders";
+import {
   Client,
   CommandInteraction,
   GuildMember,
-  Interaction
-} = require("discord.js");
-const config = require("../../config.json");
+  MessageEmbed
+} from "discord.js";
+import { config } from "../config";
 
-/**
- * @description Kinda experimental feature. Probably has some bugs & is poorly tested.
- * @param {Interaction} interaction
- * @param {GuildMember} member
- * @param {string} days
- * @returns {void}
- */
-const purgeMessages = async (interaction, member, days) => {
-  const channels = Array.from(
-    (await interaction.guild.channels.fetch()).values()
-  ).filter((c) => c.type === "GUILD_TEXT");
+export const purgeMessages = async (
+  interaction: CommandInteraction,
+  member: GuildMember,
+  days: number
+): Promise<number | null> => {
+  const guildTextChannels = interaction?.guild?.channels.cache.filter(
+    (c) => c.type === "GUILD_TEXT"
+  );
+
+  if (!guildTextChannels) return null;
+
+  const channels = Array.from(guildTextChannels);
 
   let deleted = 0;
-  const deleteCount = new Promise((resolve) => {
-    channels.forEach(async (channel, index) => {
-      await channel.messages.fetch({ limit: 100 }).then(async (messages) => {
-        const messagesToDelete = [];
-        const date = new Date();
-        date.setDate(date.getDate() - days);
+  let iteration = 0;
+  for await (const c of channels) {
+    const channel = c[1];
+    if (channel.type !== "GUILD_TEXT") continue;
+    await channel.messages.fetch({ limit: 100 }).then(async (messages) => {
+      const messagesToDelete: string[] = [];
+      const date = new Date();
+      date.setDate(date.getDate() - days);
 
-        await messages
-          .filter((m) => m.author.id === member.id)
-          .forEach((m) => {
-            // Delete all messages that are older than the given amount of days
+      await messages
+        .filter((m) => m.author.id === member.id)
+        .forEach((m) => {
+          // Delete all messages that are older than the given amount of days
 
-            const messageDate = new Date(m.createdAt);
+          const messageDate = new Date(m.createdAt);
 
-            if (messageDate > date) {
-              if (!m.deletable) return;
-              messagesToDelete.push(m.id);
-            }
-          });
+          if (messageDate > date) {
+            if (!m.deletable) return;
+            messagesToDelete.push(m.id);
+          }
+        });
 
-        if (messagesToDelete.length > 0) {
-          deleted += messagesToDelete.length;
-          await channel.bulkDelete(messagesToDelete, true);
-        }
-      });
-
-      if (index === channels.length - 1) {
-        resolve(deleted);
+      if (messagesToDelete.length > 0) {
+        deleted += messagesToDelete.length;
+        await channel.bulkDelete(messagesToDelete, true);
       }
     });
-  });
-  return deleteCount;
+    iteration++;
+  }
+
+  return deleted;
 };
 
-module.exports = {
+export default {
   purgeMessages,
   data: new SlashCommandBuilder()
     .setName("purge")
@@ -76,9 +75,20 @@ module.exports = {
           option
             .setName("aika")
             .setDescription("Aikajana, jolta käyttäjän viestejä poistetaan!")
-            .addChoice("24h", "1")
-            .addChoice("4d", "4")
-            .addChoice("7d", "7")
+            .addChoices(
+              {
+                name: "24h",
+                value: "1"
+              },
+              {
+                name: "4d",
+                value: "4"
+              },
+              {
+                name: "7d",
+                value: "7"
+              }
+            )
             .setRequired(true)
         )
         .addBooleanOption((option) =>
@@ -89,40 +99,29 @@ module.exports = {
         )
     ),
 
-  /**
-   * @description Purge command
-   * @param {Client} client
-   * @param {CommandInteraction} interaction
-   * @returns {void}
-   */
-  async execute(client, interaction) {
+  async execute(client: Client, interaction: CommandInteraction) {
     const subCommand = interaction.options.getSubcommand();
 
-    /**
-     * @type {GuildMember}
-     */
-    const member = interaction.options.getMember("käyttäjä");
+    const member = interaction.options.getMember("käyttäjä", true);
+    const days = interaction.options.getString("aika", true);
+    const silent = interaction.options.getBoolean("hiljainen", true);
 
-    /**
-     * @type {string}
-     */
-    const days = interaction.options.getString("aika");
-
-    /**
-     * @type {boolean}
-     */
-    const silent = interaction.options.getBoolean("hiljainen");
+    if (!(member instanceof GuildMember)) return;
 
     if (subCommand === "user") {
-      const deleteCount = await purgeMessages(interaction, member, days);
+      const deleteCount = await purgeMessages(
+        interaction,
+        member,
+        parseInt(days)
+      );
 
-      if (deleteCount > 0) {
+      if (deleteCount && deleteCount > 0) {
         const purgeEmbed = new MessageEmbed()
           .setColor(config.COLORS.SUCCESS)
           .setImage("https://i.stack.imgur.com/Fzh0w.png")
           .setAuthor({
             name: "Viestit poistettu onnistuneesti",
-            iconURL: client.user.displayAvatarURL()
+            iconURL: client.user?.displayAvatarURL()
           })
           .setDescription(
             // eslint-disable-next-line max-len
@@ -130,8 +129,8 @@ module.exports = {
           )
           .addField("Viestejä poistettu", `${deleteCount}kpl`)
           .setFooter({
-            text: client.user.username,
-            iconURL: client.user.displayAvatarURL()
+            text: client.user?.username || "",
+            iconURL: client.user?.displayAvatarURL()
           })
           .setTimestamp();
         return interaction.reply({ embeds: [purgeEmbed], ephemeral: silent });
@@ -141,15 +140,15 @@ module.exports = {
           .setImage("https://i.stack.imgur.com/Fzh0w.png")
           .setAuthor({
             name: "Tapahtui virhe",
-            iconURL: client.user.displayAvatarURL()
+            iconURL: client.user?.displayAvatarURL()
           })
           .setDescription(
             // eslint-disable-next-line max-len
             `Käyttäjältä ei löytynyt poistettavia viestejä annetulla aikajanalla.`
           )
           .setFooter({
-            text: client.user.username,
-            iconURL: client.user.displayAvatarURL()
+            text: client.user?.username || "",
+            iconURL: client.user?.displayAvatarURL()
           })
           .setTimestamp();
         return interaction.reply({ embeds: [errorEmbed], ephemeral: silent });

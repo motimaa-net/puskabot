@@ -1,15 +1,15 @@
-const { SlashCommandBuilder } = require("@discordjs/builders");
-const {
-  MessageEmbed,
-  Permissions,
+import { SlashCommandBuilder } from "@discordjs/builders";
+import {
   Client,
   CommandInteraction,
-  GuildMember
-} = require("discord.js");
-const config = require("../../config.json");
-const Warns = require("../models/warnModel");
+  GuildMember,
+  MessageEmbed,
+  Permissions
+} from "discord.js";
+import { config } from "../config";
+import Warns from "../models/warnModel";
 
-module.exports = {
+export default {
   data: new SlashCommandBuilder()
     .setName("unwarn")
     .setDescription("Poista viimeisin varoitus käyttäjältä!")
@@ -33,34 +33,20 @@ module.exports = {
         .setRequired(true)
     ),
 
-  /**
-   * @description Unwarn command
-   * @param {Client} client
-   * @param {CommandInteraction} interaction
-   * @returns {void}
-   */
-  async execute(client, interaction) {
-    /**
-     * @type {GuildMember}
-     */
-    const member = interaction.options.getMember("käyttäjä");
+  async execute(client: Client, interaction: CommandInteraction) {
+    const member = interaction.options.getMember("käyttäjä", true);
+    const user = interaction.options.getUser("käyttäjä", true);
+    const reason = interaction.options.getString("syy", true);
+    const silent = interaction.options.getBoolean("hiljainen", true);
 
-    /**
-     * @type {string}
-     */
-    const reason = interaction.options.getString("syy");
-
-    /**
-     * @type {boolean}
-     */
-    const silent = interaction.options.getBoolean("hiljainen");
+    if (!(member instanceof GuildMember)) return;
 
     const errorEmbedBase = new MessageEmbed()
       .setColor(config.COLORS.ERROR)
       .setImage("https://i.stack.imgur.com/Fzh0w.png")
       .setAuthor({
         name: "Tapahtui virhe",
-        iconURL: client.user.displayAvatarURL()
+        iconURL: client.user?.displayAvatarURL()
       })
       .setFooter({
         text: interaction.user.username,
@@ -76,11 +62,11 @@ module.exports = {
     }
 
     // Validation
-    if (member.bot) {
+    if (user?.bot) {
       errorEmbedBase.setDescription(`Boteilla ei voi olla varoituksia!`);
       return interaction.reply({ embeds: [errorEmbedBase], ephemeral: true });
     }
-    if (member.id === interaction.user.id) {
+    if (user?.id === interaction.user.id) {
       errorEmbedBase.setDescription(`Et voi poistaa varoitusta itseltäsi!`);
       return interaction.reply({ embeds: [errorEmbedBase], ephemeral: true });
     }
@@ -130,7 +116,7 @@ module.exports = {
       .setImage("https://i.stack.imgur.com/Fzh0w.png")
       .setAuthor({
         name: "Viimeisin varoitus poistettu",
-        iconURL: client.user.displayAvatarURL()
+        iconURL: client.user?.displayAvatarURL()
       })
       .setDescription(
         `Käyttäjän **${member.user.tag}** viimeisin varoitus on poistettu!`
@@ -161,7 +147,7 @@ module.exports = {
     member
       .send({
         // eslint-disable-next-line max-len
-        content: `Viimeisin varoituksesi palvelimella **${interaction.guild.name}** on poistettu. :)`,
+        content: `Viimeisin varoituksesi palvelimella **${interaction.guild?.name}** on poistettu. :)`,
         embeds: [unwarnEmbed]
       })
       .catch((e) => {

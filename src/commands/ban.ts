@@ -1,17 +1,18 @@
-const { SlashCommandBuilder } = require("@discordjs/builders");
-const {
-  MessageEmbed,
-  Permissions,
+import { SlashCommandBuilder } from "@discordjs/builders";
+import {
   Client,
   CommandInteraction,
-  GuildMember
-} = require("discord.js");
-const { purgeMessages } = require("./purge");
-const config = require("../../config.json");
-const Bans = require("../models/banModel");
-const timeUtils = require("../utils/timeUtils");
+  GuildMember,
+  HexColorString,
+  MessageEmbed,
+  Permissions
+} from "discord.js";
+import { config } from "../config";
+import Bans from "../models/banModel";
+import { epochConverter } from "../utils/timeUtils";
+import { purgeMessages } from "./purge";
 
-module.exports = {
+export default {
   data: new SlashCommandBuilder()
     .setName("ban")
     .setDescription("Anna porttikielto käyttäjälle!")
@@ -44,52 +45,41 @@ module.exports = {
       option
         .setName("puhdista")
         .setDescription("Poistetaanko käyttäjän viestejä ajalta:")
-        .addChoice("24h", "1")
-        .addChoice("4d", "4")
-        .addChoice("7d", "7")
+        .addChoices(
+          {
+            name: "24h",
+            value: "1"
+          },
+          {
+            name: "4d",
+            value: "4"
+          },
+          {
+            name: "7d",
+            value: "7"
+          }
+        )
         .setRequired(false)
     ),
 
-  /**
-   * @description Ban command
-   * @param {Client} client
-   * @param {CommandInteraction} interaction
-   * @returns {void}
-   */
-  async execute(client, interaction) {
-    /**
-     * @type {GuildMember}
-     */
-    const member = interaction.options.getMember("käyttäjä");
-
-    /**
-     * @type {number}
-     */
+  async execute(client: Client, interaction: CommandInteraction) {
+    const user = interaction.options.getUser("käyttäjä", true);
+    const member = interaction.options.getMember("käyttäjä", true);
+    const reason = interaction.options.getString("syy", true);
+    const silent = interaction.options.getBoolean("hiljainen", true);
+    const deleteMessages = interaction.options.getString("puhdista");
     const days = interaction.options.getInteger("aika");
 
-    /**
-     * @type {string}
-     */
-    const reason = interaction.options.getString("syy");
+    await interaction.deferReply({ ephemeral: silent ?? false });
 
-    /**
-     * @type {string}
-     */
-    const deleteMessages = interaction.options.getString("puhdista");
-
-    /**
-     * @type {boolean}
-     */
-    const silent = interaction.options.getBoolean("hiljainen");
-
-    await interaction.deferReply({ ephemeral: silent });
+    if (!(member instanceof GuildMember)) return;
 
     const errorEmbedBase = new MessageEmbed()
-      .setColor(config.COLORS.ERROR)
+      .setColor(config.COLORS.ERROR as HexColorString)
       .setImage("https://i.stack.imgur.com/Fzh0w.png")
       .setAuthor({
         name: "Tapahtui virhe",
-        iconURL: client.user.displayAvatarURL()
+        iconURL: client.user?.displayAvatarURL()
       })
       .setFooter({
         text: interaction.user.username,
@@ -97,29 +87,26 @@ module.exports = {
       })
       .setTimestamp();
 
-    if (!member?.id) {
+    if (!user.id || !member) {
       errorEmbedBase.setDescription(
         `Kyseistä käyttäjää ei löytynyt! Käyttäjä on todennäköisesti poistunut palvelimelta!`
       );
       return interaction.editReply({
-        embeds: [errorEmbedBase],
-        ephemeral: true
+        embeds: [errorEmbedBase]
       });
     }
 
-    const isBanned = await Bans.findOne({ userId: member.id, active: true });
+    const isBanned = await Bans.findOne({ userId: user.id, active: true });
     if (isBanned) {
       errorEmbedBase
-        .setDescription(
-          `Käyttäjällä **${member.user.tag}** on jo porttikielto!`
-        )
+        .setDescription(`Käyttäjällä **${user.tag}** on jo porttikielto!`)
         .addFields([
           { name: "Käyttäjä", value: `${isBanned.username}`, inline: true },
           { name: "Syynä", value: `${isBanned.reason}`, inline: true },
           { name: "Rankaisija", value: `${isBanned.authorName}`, inline: true },
           {
             name: "Annettu",
-            value: `<t:${timeUtils.epochConverter(isBanned.createdAt)}:R>`,
+            value: `<t:${epochConverter(isBanned.createdAt)}:R>`,
             inline: true
           },
           {
@@ -132,31 +119,28 @@ module.exports = {
           isBanned.expiresAt
             ? {
                 name: "Loppuu",
-                value: `<t:${timeUtils.epochConverter(isBanned.expiresAt)}:R>`,
+                value: `<t:${epochConverter(isBanned.expiresAt)}:R>`,
                 inline: true
               }
             : { name: "\u200B", value: `\u200B`, inline: true }
         ]);
       return interaction.editReply({
-        embeds: [errorEmbedBase],
-        ephemeral: true
+        embeds: [errorEmbedBase]
       });
     }
 
     // Validation
-    if (member.bot) {
+    if (user.bot) {
       errorEmbedBase.setDescription(`Et voi antaa porttikieltoa botille!`);
       return interaction.editReply({
-        embeds: [errorEmbedBase],
-        ephemeral: true
+        embeds: [errorEmbedBase]
       });
     }
 
-    if (member.id === interaction.user.id) {
+    if (user.id === interaction.user.id) {
       errorEmbedBase.setDescription(`Et voi antaa porttikieltoa itsellesi!`);
       return interaction.editReply({
-        embeds: [errorEmbedBase],
-        ephemeral: true
+        embeds: [errorEmbedBase]
       });
     }
     if (member.permissions.has(Permissions.FLAGS.ADMINISTRATOR)) {
@@ -164,8 +148,7 @@ module.exports = {
         `Et voi antaa porttikieltoa ylläpitäjälle!`
       );
       return interaction.editReply({
-        embeds: [errorEmbedBase],
-        ephemeral: true
+        embeds: [errorEmbedBase]
       });
     }
     if (reason.length < 4 || reason.length > 200) {
@@ -173,8 +156,7 @@ module.exports = {
         `Porttikiellon syyn täytyy olla 4-200 merkkiä pitkä!`
       );
       return interaction.editReply({
-        embeds: [errorEmbedBase],
-        ephemeral: true
+        embeds: [errorEmbedBase]
       });
     }
     if (days && (days < 1 || days > 365)) {
@@ -182,16 +164,15 @@ module.exports = {
         `Porttikiellon keston täytyy olla 1-365 päivää! Voit myös antaa ikuisen porttikiellon jättämällä aika-arvon huomioimatta.`
       );
       return interaction.editReply({
-        embeds: [errorEmbedBase],
-        ephemeral: true
+        embeds: [errorEmbedBase]
       });
     }
 
     if (deleteMessages)
-      await purgeMessages(interaction, member, deleteMessages);
+      await purgeMessages(interaction, member, parseInt(deleteMessages));
 
     // Save user roles before ban
-    const userRoles = [];
+    const userRoles: string[] = [];
     await member.roles.cache
       .sort((a, b) => b.position - a.position)
       .map((r) => r)
@@ -205,7 +186,7 @@ module.exports = {
 
     // Initialize ban expiry date
     const expiresAt = new Date();
-    expiresAt.setDate(expiresAt.getDate() + days);
+    expiresAt.setDate(expiresAt.getDate() + (days ?? 0));
 
     const newBan = new Bans({
       userId: member.id,
@@ -226,7 +207,7 @@ module.exports = {
       .setImage("https://i.stack.imgur.com/Fzh0w.png")
       .setAuthor({
         name: "Porttikielto myönnetty",
-        iconURL: client.user.displayAvatarURL()
+        iconURL: client.user?.displayAvatarURL()
       })
       .setDescription(
         `Käyttäjälle **${member.user.tag}** on myönnetty porttikielto!`
@@ -241,7 +222,7 @@ module.exports = {
         },
         {
           name: "Annettu",
-          value: `<t:${timeUtils.epochConverter(new Date())}:R>`,
+          value: `<t:${epochConverter(new Date())}:R>`,
           inline: true
         },
         {
@@ -252,7 +233,7 @@ module.exports = {
         days
           ? {
               name: "Loppuu",
-              value: `<t:${timeUtils.epochConverter(expiresAt)}:R>`,
+              value: `<t:${epochConverter(expiresAt)}:R>`,
               inline: true
             }
           : { name: "\u200B", value: `\u200B`, inline: true }
@@ -263,6 +244,6 @@ module.exports = {
       })
       .setTimestamp();
 
-    interaction.editReply({ embeds: [banEmbed], ephemeral: silent });
+    interaction.editReply({ embeds: [banEmbed] });
   }
 };

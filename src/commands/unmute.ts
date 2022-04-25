@@ -1,15 +1,15 @@
-const { SlashCommandBuilder } = require("@discordjs/builders");
-const {
-  MessageEmbed,
+import { SlashCommandBuilder } from "@discordjs/builders";
+import {
   Client,
   CommandInteraction,
-  GuildMember
-} = require("discord.js");
-const config = require("../../config.json");
-const Mutes = require("../models/muteModel");
-const timeUtils = require("../utils/timeUtils");
+  GuildMember,
+  MessageEmbed
+} from "discord.js";
+import { config } from "../config";
+import Mutes from "../models/muteModel";
+import { epochConverter } from "../utils/timeUtils";
 
-module.exports = {
+export default {
   data: new SlashCommandBuilder()
     .setName("unmute")
     .setDescription("Poista käyttäjältä mykistys!")
@@ -28,29 +28,19 @@ module.exports = {
         .setRequired(true)
     ),
 
-  /**
-   * @description Unmute command
-   * @param {Client} client
-   * @param {CommandInteraction} interaction
-   * @returns {void}
-   */
-  async execute(client, interaction) {
-    /**
-     * @type {GuildMember}
-     */
-    const member = interaction.options.getMember("käyttäjä");
+  async execute(client: Client, interaction: CommandInteraction) {
+    const member = interaction.options.getMember("käyttäjä", true);
+    const user = interaction.options.getUser("käyttäjä", true);
+    const silent = interaction.options.getBoolean("hiljainen", true);
 
-    /**
-     * @type {boolean}
-     */
-    const silent = interaction.options.getBoolean("hiljainen");
+    if (!(member instanceof GuildMember)) return;
 
     const errorEmbedBase = new MessageEmbed()
       .setColor(config.COLORS.ERROR)
       .setImage("https://i.stack.imgur.com/Fzh0w.png")
       .setAuthor({
         name: "Tapahtui virhe",
-        iconURL: client.user.displayAvatarURL()
+        iconURL: client.user?.displayAvatarURL()
       })
       .setFooter({
         text: interaction.user.username,
@@ -58,17 +48,17 @@ module.exports = {
       })
       .setTimestamp();
 
-    if (!member?.id) {
+    if (!user?.id) {
       errorEmbedBase.setDescription(
         `Kyseistä käyttäjää ei löytynyt! Käyttäjä on todennäköisesti poistunut palvelimelta!`
       );
       return interaction.reply({ embeds: [errorEmbedBase], ephemeral: true });
     }
 
-    const isMuted = await Mutes.findOne({ userId: member.id, active: true });
+    const isMuted = await Mutes.findOne({ userId: user.id, active: true });
     if (!isMuted) {
       errorEmbedBase.setDescription(
-        `Käyttäjällä **${member.user.tag}** ei ole voimassa olevaa mykistystä!`
+        `Käyttäjällä **${user.tag}** ei ole voimassa olevaa mykistystä!`
       );
       return interaction.reply({ embeds: [errorEmbedBase], ephemeral: true });
     }
@@ -92,7 +82,7 @@ module.exports = {
       .setImage("https://i.stack.imgur.com/Fzh0w.png")
       .setAuthor({
         name: "Mykistys poistettu",
-        iconURL: client.user.displayAvatarURL()
+        iconURL: client.user?.displayAvatarURL()
       })
       .setDescription(`Käyttäjän **${member.user.tag}** mykistys on poistettu!`)
       .addFields([
@@ -110,7 +100,7 @@ module.exports = {
         },
         {
           name: "Poistettu",
-          value: `<t:${timeUtils.epochConverter(new Date())}:R>`,
+          value: `<t:${epochConverter(new Date())}:R>`,
           inline: true
         },
         { name: "\u200B", value: `\u200B`, inline: true }

@@ -1,15 +1,15 @@
-const { SlashCommandBuilder } = require("@discordjs/builders");
-const {
-  MessageEmbed,
-  Permissions,
+import { SlashCommandBuilder } from "@discordjs/builders";
+import {
   Client,
+  CommandInteraction,
   GuildMember,
-  CommandInteraction
-} = require("discord.js");
-const config = require("../../config.json");
-const Bans = require("../models/banModel");
-const Warns = require("../models/warnModel");
-const timeUtils = require("../utils/timeUtils");
+  MessageEmbed,
+  Permissions
+} from "discord.js";
+import { config } from "../config";
+import Bans from "../models/banModel";
+import Warns from "../models/warnModel";
+import { epochConverter } from "../utils/timeUtils";
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -35,34 +35,20 @@ module.exports = {
         .setRequired(true)
     ),
 
-  /**
-   * @description Warn command
-   * @param {Client} client
-   * @param {CommandInteraction} interaction
-   * @returns {void}
-   */
-  async execute(client, interaction) {
-    /**
-     * @type {GuildMember}
-     */
-    const member = interaction.options.getMember("käyttäjä");
+  async execute(client: Client, interaction: CommandInteraction) {
+    const member = interaction.options.getMember("käyttäjä", true);
+    const user = interaction.options.getUser("käyttäjä", true);
+    const reason = interaction.options.getString("syy", true);
+    const silent = interaction.options.getBoolean("hiljainen", true);
 
-    /**
-     * @type {string}
-     */
-    const reason = interaction.options.getString("syy");
-
-    /**
-     * @type {boolean}
-     */
-    const silent = interaction.options.getBoolean("hiljainen");
+    if (!(member instanceof GuildMember)) return;
 
     const errorEmbedBase = new MessageEmbed()
       .setColor(config.COLORS.ERROR)
       .setImage("https://i.stack.imgur.com/Fzh0w.png")
       .setAuthor({
         name: "Tapahtui virhe",
-        iconURL: client.user.displayAvatarURL()
+        iconURL: client.user?.displayAvatarURL()
       })
       .setFooter({
         text: interaction.user.username,
@@ -70,7 +56,7 @@ module.exports = {
       })
       .setTimestamp();
 
-    if (!member?.id) {
+    if (!user?.id) {
       errorEmbedBase.setDescription(
         `Kyseistä käyttäjää ei löytynyt! Käyttäjä on todennäköisesti poistunut palvelimelta!`
       );
@@ -78,18 +64,18 @@ module.exports = {
     }
 
     // Validation
-    const isBanned = await Bans.findOne({ userId: member.id, active: true });
+    const isBanned = await Bans.findOne({ userId: user.id, active: true });
     if (isBanned) {
       errorEmbedBase.setDescription(
-        `Käyttäjällä **${member.user.tag}** on porttikielto! Et voi varoittaa käyttäjää jolla on aktiivinen porttikielto!`
+        `Käyttäjällä **${user.tag}** on porttikielto! Et voi varoittaa käyttäjää jolla on aktiivinen porttikielto!`
       );
       return interaction.reply({ embeds: [errorEmbedBase], ephemeral: true });
     }
-    if (member.bot) {
+    if (user.bot) {
       errorEmbedBase.setDescription(`Et voi antaa varoitusta botille!`);
       return interaction.reply({ embeds: [errorEmbedBase], ephemeral: true });
     }
-    if (member.id === interaction.user.id) {
+    if (user.id === interaction.user.id) {
       errorEmbedBase.setDescription(`Et voi antaa varoitusta itsellesi!`);
       return interaction.reply({ embeds: [errorEmbedBase], ephemeral: true });
     }
@@ -108,9 +94,7 @@ module.exports = {
 
     // Initialize warning expiry date based on config
     const warnExpiresAt = new Date();
-    warnExpiresAt.setDate(
-      warnExpiresAt.getDate() + parseInt(config.WARN_EXPIRES)
-    );
+    warnExpiresAt.setDate(warnExpiresAt.getDate() + config.WARN_EXPIRES);
 
     const newWarn = new Warns({
       userId: member.id,
@@ -126,9 +110,9 @@ module.exports = {
 
     // If active warning are above threshhold then ban user
     const activeWarns = await Warns.find({ userId: member.id, active: true });
-    if (activeWarns.length === parseInt(config.WARN_THRESHOLD)) {
+    if (activeWarns.length === config.WARN_THRESHOLD) {
       // Get user's roles before banning
-      const userRoles = [];
+      const userRoles: string[] = [];
       await member.roles.cache
         .sort((a, b) => b.position - a.position)
         .map((r) => r)
@@ -144,9 +128,7 @@ module.exports = {
 
       // Initialize ban expiry date based on config
       const banExpiresAt = new Date();
-      banExpiresAt.setDate(
-        banExpiresAt.getDate() + parseInt(config.WARN_BAN_DAYS)
-      );
+      banExpiresAt.setDate(banExpiresAt.getDate() + config.WARN_BAN_DAYS);
 
       const newBan = new Bans({
         userId: member.id,
@@ -174,7 +156,7 @@ module.exports = {
         .setImage("https://i.stack.imgur.com/Fzh0w.png")
         .setAuthor({
           name: "Porttikielto myönnetty",
-          iconURL: client.user.displayAvatarURL()
+          iconURL: client.user?.displayAvatarURL()
         })
         .setDescription(
           `Käyttäjälle **${member.user.tag}** on myönnetty porttikielto!`
@@ -193,7 +175,7 @@ module.exports = {
           },
           {
             name: "Annettu",
-            value: `<t:${timeUtils.epochConverter(new Date())}:R>`,
+            value: `<t:${epochConverter(new Date())}:R>`,
             inline: true
           },
           {
@@ -203,7 +185,7 @@ module.exports = {
           },
           {
             name: "Loppuu",
-            value: `<t:${timeUtils.epochConverter(banExpiresAt)}:R>`,
+            value: `<t:${epochConverter(banExpiresAt)}:R>`,
             inline: true
           }
         ])
@@ -220,7 +202,7 @@ module.exports = {
           `Varoitus ${x + 1}`,
           `**${warn.authorName}** varoitti syystä: **${
             warn.reason
-          }** (${`<t:${timeUtils.epochConverter(warn.createdAt)}:R>`})`
+          }** (${`<t:${epochConverter(warn.createdAt)}:R>`})`
         );
       }
 
@@ -230,7 +212,7 @@ module.exports = {
       member
         .send({
           // eslint-disable-next-line max-len
-          content: `Olet saanut porttikiellon palvelimella **${interaction.guild.name}**.`,
+          content: `Olet saanut porttikiellon palvelimella **${interaction.guild?.name}**.`,
           embeds: [banEmbed]
         })
         .catch((e) => {
@@ -249,7 +231,7 @@ module.exports = {
       .setImage("https://i.stack.imgur.com/Fzh0w.png")
       .setAuthor({
         name: "Käyttäjää varoitettu",
-        iconURL: client.user.displayAvatarURL()
+        iconURL: client.user?.displayAvatarURL()
       })
       .setDescription(`Käyttäjälle **${member.user.tag}** on annettu varoitus!`)
       .addFields([
@@ -262,7 +244,7 @@ module.exports = {
         },
         {
           name: "Annettu",
-          value: `<t:${timeUtils.epochConverter(new Date())}:R>`,
+          value: `<t:${epochConverter(new Date())}:R>`,
           inline: true
         },
         {
@@ -272,7 +254,7 @@ module.exports = {
         },
         {
           name: "Vanhenee",
-          value: `<t:${timeUtils.epochConverter(warnExpiresAt)}:R>`,
+          value: `<t:${epochConverter(warnExpiresAt)}:R>`,
           inline: true
         },
         {
@@ -297,7 +279,7 @@ module.exports = {
     member
       .send({
         // eslint-disable-next-line max-len
-        content: `Olet saanut varoituksen palvelimella **${interaction.guild.name}**. Mikäli saavutat ${config.WARN_THRESHOLD} aktiivista varoitusta saat porttikiellon palvelimelta ${config.WARN_BAN_DAYS} päivän ajaksi. Tässä vielä muistutus varoituksestasi :)`,
+        content: `Olet saanut varoituksen palvelimella **${interaction.guild?.name}**. Mikäli saavutat ${config.WARN_THRESHOLD} aktiivista varoitusta saat porttikiellon palvelimelta ${config.WARN_BAN_DAYS} päivän ajaksi. Tässä vielä muistutus varoituksestasi :)`,
         embeds: [warnEmbed]
       })
       .catch((e) => {

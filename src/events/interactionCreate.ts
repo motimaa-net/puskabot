@@ -1,29 +1,24 @@
-const {
-  MessageEmbed,
+import {
   Client,
+  GuildMember,
   Interaction,
+  MessageEmbed,
   Permissions
-} = require("discord.js");
-const config = require("../../config.json");
-const Bans = require("../models/banModel");
-const cronTasks = require("../utils/cronTasks");
-const logger = require("../utils/logger");
-const timeUtils = require("../utils/timeUtils");
+} from "discord.js";
+import { config } from "../config";
+import Bans from "../models/banModel";
+import { banHandler, muteHandler, warnHandler } from "../utils/cronTasks";
+import { logger } from "../utils/logger";
+import { epochConverter } from "../utils/timeUtils";
 
-module.exports = {
+export default {
   name: "interactionCreate",
-  /**
-   * @description Called when a new interaction is created
-   * @param {Client} client
-   * @param {Interaction} interaction
-   * @returns {void}
-   */
-  async execute(client, interaction) {
-    // Handle commands
+  async execute(client: Client, interaction: Interaction) {
     if (interaction.isCommand()) {
-      // Backup check because illuminati is real
       if (
-        !interaction?.member.permissions.has(Permissions.FLAGS.MANAGE_MESSAGES)
+        !(interaction?.member as GuildMember)?.permissions?.has(
+          Permissions.FLAGS.MANAGE_MESSAGES
+        )
       )
         return;
 
@@ -31,9 +26,9 @@ module.exports = {
       if (!command) return;
 
       try {
-        const banPromise = cronTasks.banHandler(client, false);
-        const cronPromise = cronTasks.warnHandler(client, false);
-        const mutePromise = cronTasks.muteHandler(client, false);
+        const banPromise = banHandler(client, false);
+        const cronPromise = warnHandler(client, false);
+        const mutePromise = muteHandler(client, false);
         await Promise.all([banPromise, cronPromise, mutePromise]);
 
         await command.execute(client, interaction);
@@ -83,7 +78,7 @@ module.exports = {
             },
             {
               name: "Annettu",
-              value: `<t:${timeUtils.epochConverter(banDetails.createdAt)}:R>`,
+              value: `<t:${epochConverter(banDetails.createdAt)}:R>`,
               inline: true
             },
             {
@@ -96,9 +91,7 @@ module.exports = {
             banDetails.days
               ? {
                   name: "Loppuu",
-                  value: `<t:${timeUtils.epochConverter(
-                    banDetails.expiresAt
-                  )}:R>`,
+                  value: `<t:${epochConverter(banDetails.expiresAt)}:R>`,
                   inline: true
                 }
               : { name: "\u200B", value: `\u200B`, inline: true }

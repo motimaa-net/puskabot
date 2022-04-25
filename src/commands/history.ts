@@ -1,18 +1,13 @@
-const { SlashCommandBuilder } = require("@discordjs/builders");
-const {
-  MessageEmbed,
-  Client,
-  CommandInteraction,
-  GuildMember
-} = require("discord.js");
-const config = require("../../config.json");
-const Bans = require("../models/banModel");
-const Mutes = require("../models/muteModel");
-const Warns = require("../models/warnModel");
-const paginationHandler = require("../utils/paginationHandler");
-const timeUtils = require("../utils/timeUtils");
+import { SlashCommandBuilder } from "@discordjs/builders";
+import { Client, CommandInteraction, MessageEmbed } from "discord.js";
+import { config } from "../config";
+import Bans from "../models/banModel";
+import Mutes from "../models/muteModel";
+import Warns from "../models/warnModel";
+import { paginationHandler } from "../utils/paginationHandler";
+import { daysAgo, epochConverter } from "../utils/timeUtils";
 
-module.exports = {
+export default {
   data: new SlashCommandBuilder()
     .setName("history")
     .setDescription("Katso käyttäjän rikehistoria!")
@@ -30,30 +25,19 @@ module.exports = {
         .setRequired(true)
     ),
 
-  /**
-   * @description History command (infractions history)
-   * @param {Client} client
-   * @param {CommandInteraction} interaction
-   * @returns {void}
-   */
-  async execute(client, interaction) {
-    /**
-     * @type {GuildMember}
-     */
+  async execute(client: Client, interaction: CommandInteraction) {
     const member = interaction.options.getMember("käyttäjä");
-
-    /**
-     * @type {boolean}
-     */
+    const user = interaction.options.getUser("käyttäjä");
     const silent = interaction.options.getBoolean("hiljainen");
-    await interaction.deferReply({ ephemeral: silent });
+
+    await interaction.deferReply({ ephemeral: silent ?? false });
 
     const errorEmbedBase = new MessageEmbed()
       .setColor(config.COLORS.ERROR)
       .setImage("https://i.stack.imgur.com/Fzh0w.png")
       .setAuthor({
         name: "Tapahtui virhe",
-        iconURL: client.user.displayAvatarURL()
+        iconURL: client.user?.displayAvatarURL()
       })
       .setFooter({
         text: interaction.user.username,
@@ -61,7 +45,7 @@ module.exports = {
       })
       .setTimestamp();
 
-    if (!member?.id) {
+    if (!user?.id) {
       errorEmbedBase.setDescription(
         `Kyseistä käyttäjää ei löytynyt! Käyttäjä on todennäköisesti poistunut palvelimelta!`
       );
@@ -70,13 +54,13 @@ module.exports = {
 
     const infractionTypes = ["porttikielto", "varoitus", "mykistys"];
 
-    const totalBans = (await Bans.find({ userId: member.id }).lean())?.map(
+    const totalBans = (await Bans.find({ userId: user.id }).lean())?.map(
       (item) => Object.assign({}, item, { type: infractionTypes[0] })
     );
-    const totalWarns = (await Warns.find({ userId: member.id }).lean())?.map(
+    const totalWarns = (await Warns.find({ userId: user.id }).lean())?.map(
       (item) => Object.assign({}, item, { type: infractionTypes[1] })
     );
-    const totalMutes = (await Mutes.find({ userId: member.id }).lean())?.map(
+    const totalMutes = (await Mutes.find({ userId: user.id }).lean())?.map(
       (item) => Object.assign({}, item, { type: infractionTypes[2] })
     );
     const activeBans = totalBans.filter((ban) => ban.active);
@@ -92,7 +76,7 @@ module.exports = {
       const errorEmbed = errorEmbedBase.setDescription(
         "Käyttäjällä ei ole rikehistoriaa!"
       );
-      return interaction.editReply({ embeds: [errorEmbed], ephemeral: silent });
+      return interaction.editReply({ embeds: [errorEmbed] });
     }
 
     // Combine totalBans and totalWarns into one array and sort it by date
@@ -108,9 +92,9 @@ module.exports = {
             ? `(1/${combinedInfractions.length + 1})`
             : ``
         }`,
-        iconURL: client.user.displayAvatarURL()
+        iconURL: client.user?.displayAvatarURL()
       })
-      .setDescription(`Käyttäjän **${member.user.tag}** rikehistoria!`)
+      .setDescription(`Käyttäjän **${user.tag}** rikehistoria!`)
       .setFooter({
         text: interaction.user.username,
         iconURL: interaction.user.displayAvatarURL()
@@ -138,7 +122,7 @@ module.exports = {
         activeWarnsFormatted.push(
           `\`\`\`yaml\n${x + 1}: ${warn.authorName} varoitti syystä "${
             warn.reason
-          }" # (${`${timeUtils.daysAgo(warn.createdAt)}`})\`\`\``
+          }" # (${`${daysAgo(warn.createdAt)}`})\`\`\``
         );
       }
       historyEmbed.addField(
@@ -194,7 +178,7 @@ module.exports = {
         {
           name: "Porttikielto vanhenee",
           value: activeBans[0].expiresAt
-            ? `<t:${timeUtils.epochConverter(activeBans[0].expiresAt)}:R>`
+            ? `<t:${epochConverter(activeBans[0].expiresAt)}:R>`
             : "__Ikuinen__",
           inline: true
         },
@@ -224,7 +208,7 @@ module.exports = {
             infraction.type.charAt(0).toUpperCase() +
             infraction.type.substring(1)
           } (${index + 2}/${combinedInfractions.length + 1})`,
-          iconURL: client.user.displayAvatarURL()
+          iconURL: client.user?.displayAvatarURL()
         })
         .setDescription(
           `Käyttäjälle **${infraction.username}** on myönnetty ${infraction.type}!`
@@ -244,7 +228,7 @@ module.exports = {
           },
           {
             name: "Annettu",
-            value: `<t:${timeUtils.epochConverter(infraction.createdAt)}:R>`,
+            value: `<t:${epochConverter(infraction.createdAt)}:R>`,
             inline: true
           },
           infraction.type === "porttikielto" || infraction.type === "mykistys"
@@ -263,9 +247,7 @@ module.exports = {
           infraction.length && infraction.removedType !== "manual"
             ? {
                 name: "Vanhenee",
-                value: `<t:${timeUtils.epochConverter(
-                  infraction.expiresAt
-                )}:R>`,
+                value: `<t:${epochConverter(infraction.expiresAt)}:R>`,
                 inline: true
               }
             : { name: "\u200B", value: `\u200B`, inline: true }
@@ -274,7 +256,7 @@ module.exports = {
         infinfractionsEmbed
           .addField(
             "Poistettu manuaalisesti",
-            `<t:${timeUtils.epochConverter(infraction.removedAt)}:R>`,
+            `<t:${epochConverter(infraction.removedAt)}:R>`,
             true
           )
           .addField("Poistaja", `${infraction.removedBy}`, true)

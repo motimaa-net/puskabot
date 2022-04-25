@@ -1,4 +1,4 @@
-const { Schema, model } = require("mongoose");
+import { model, Schema } from "mongoose";
 
 const warnSchema = new Schema(
   {
@@ -49,4 +49,4 @@ const warnSchema = new Schema(
     timestamps: true
   }
 );
-module.exports = model("warns", warnSchema);
+export default model("warns", warnSchema);

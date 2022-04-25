@@ -1,15 +1,10 @@
-const { Client, GuildMember } = require("discord.js");
-const config = require("../../config.json");
-const Bans = require("../models/banModel");
+import { Client, GuildMember } from "discord.js";
+import { config } from "../config";
+import Bans from "../models/banModel";
 
-module.exports = {
+export default {
   name: "guildMemberAdd",
-  /**
-   * @description Called when a member joins the guild.
-   * @param {Client} client
-   * @param {GuildMember} guildMember
-   */
-  async execute(client, guildMember) {
+  async execute(client: Client, guildMember: GuildMember) {
     const { user } = guildMember;
 
     // Check if user is banned on join, if so, give ban role back.

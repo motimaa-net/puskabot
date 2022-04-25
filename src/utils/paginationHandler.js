@@ -1,11 +1,16 @@
-const {
+// PLEASE NOTE
+// Shit module has weak typescript support. Too lazy to fix it so this
+// file stays as js.
+// TODO: Fix?
+
+import {
   ButtonPaginator,
   PaginatorEvents
-} = require("@psibean/discord.js-pagination");
-const { Message, MessageEmbed } = require("discord.js");
-const config = require("../../config.json");
+} from "@psibean/discord.js-pagination";
+import { Message, MessageEmbed } from "discord.js";
+import { config } from "../config";
 
-const paginationHandler = async (interaction, pages) => {
+export const paginationHandler = async (interaction, pages) => {
   const buttons = [
     {
       label: "Ensimmäinen",

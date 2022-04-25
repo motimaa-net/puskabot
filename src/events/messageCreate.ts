@@ -1,25 +1,17 @@
-const { Client, Message } = require("discord.js");
-const config = require("../../config.json");
+import { Client, Message } from "discord.js";
+import { config } from "../config";
 
 const usersMap = new Map();
 const LIMIT = 7;
 const DIFF = 5000;
 const TIME = 30000;
 
-module.exports = {
+export default {
   name: "messageCreate",
   once: false,
-
-  /**
-   * @description Called once when the bot is ready.
-   * @param {Client} client
-   * @param {Message} m
-   * @returns {void}
-   */
-  async execute(client, m) {
+  async execute(client: Client, m: Message) {
     if (m.author.bot) return;
 
-    // If staff member return
     const staff = m.member.roles.cache.some((r) =>
       config.STAFF_ROLES.includes(r.id)
     );

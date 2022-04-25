@@ -1,17 +1,17 @@
-const { SlashCommandBuilder } = require("@discordjs/builders");
-const {
-  MessageEmbed,
+import { SlashCommandBuilder } from "@discordjs/builders";
+import {
   Client,
   CommandInteraction,
-  GuildMember
-} = require("discord.js");
-const { purgeMessages } = require("./purge");
-const config = require("../../config.json");
-const Bans = require("../models/banModel");
-const Mutes = require("../models/muteModel");
-const timeUtils = require("../utils/timeUtils");
+  GuildMember,
+  MessageEmbed
+} from "discord.js";
+import { config } from "../config";
+import Bans from "../models/banModel";
+import Mutes from "../models/muteModel";
+import { epochConverter } from "../utils/timeUtils";
+import { purgeMessages } from "./purge";
 
-module.exports = {
+export default {
   data: new SlashCommandBuilder()
     .setName("mute")
     .setDescription("Anna mykistys käyttäjälle!")
@@ -44,52 +44,41 @@ module.exports = {
       option
         .setName("puhdista")
         .setDescription("Poistetaanko käyttäjän viestejä ajalta:")
-        .addChoice("24h", "1")
-        .addChoice("4d", "4")
-        .addChoice("7d", "7")
+        .addChoices(
+          {
+            name: "24h",
+            value: "1"
+          },
+          {
+            name: "4d",
+            value: "4"
+          },
+          {
+            name: "7d",
+            value: "7"
+          }
+        )
         .setRequired(false)
     ),
 
-  /**
-   * @description Mute command
-   * @param {Client} client
-   * @param {CommandInteraction} interaction
-   * @returns {void}
-   */
-  async execute(client, interaction) {
-    /**
-     * @type {GuildMember}
-     */
-    const member = interaction.options.getMember("käyttäjä");
-
-    /**
-     * @type {number}
-     */
-    const days = interaction.options.getInteger("aika");
-
-    /**
-     * @type {string}
-     */
-    const reason = interaction.options.getString("syy");
-
-    /**
-     * @type {boolean}
-     */
-    const silent = interaction.options.getBoolean("hiljainen");
-
-    /**
-     * @type {string}
-     */
+  async execute(client: Client, interaction: CommandInteraction) {
+    const member = interaction.options.getMember("käyttäjä", true);
+    const user = interaction.options.getUser("käyttäjä", true);
+    const reason = interaction.options.getString("syy", true);
+    const silent = interaction.options.getBoolean("hiljainen", true);
+    const days = interaction.options.getInteger("aika", true);
     const deleteMessages = interaction.options.getString("puhdista");
 
     await interaction.deferReply({ ephemeral: silent });
+
+    if (!(member instanceof GuildMember)) return;
 
     const errorEmbedBase = new MessageEmbed()
       .setColor(config.COLORS.ERROR)
       .setImage("https://i.stack.imgur.com/Fzh0w.png")
       .setAuthor({
         name: "Tapahtui virhe",
-        iconURL: client.user.displayAvatarURL()
+        iconURL: client.user?.displayAvatarURL()
       })
       .setFooter({
         text: interaction.user.username,
@@ -97,21 +86,20 @@ module.exports = {
       })
       .setTimestamp();
 
-    if (!member?.id) {
+    if (!user?.id) {
       errorEmbedBase.setDescription(
         `Kyseistä käyttäjää ei löytynyt! Käyttäjä on todennäköisesti poistunut palvelimelta!`
       );
       return interaction.editReply({
-        embeds: [errorEmbedBase],
-        ephemeral: true
+        embeds: [errorEmbedBase]
       });
     }
 
-    const isBanned = await Bans.findOne({ userId: member.id, active: true });
+    const isBanned = await Bans.findOne({ userId: user.id, active: true });
     if (isBanned) {
       errorEmbedBase
         .setDescription(
-          `Käyttäjällä **${member.user.tag}** on porttikielto, etkä voi mykistää porttikiellossa olevaa käyttäjää!`
+          `Käyttäjällä **${user.tag}** on porttikielto, etkä voi mykistää porttikiellossa olevaa käyttäjää!`
         )
         .addFields([
           { name: "Käyttäjä", value: `${isBanned.username}`, inline: true },
@@ -119,7 +107,7 @@ module.exports = {
           { name: "Rankaisija", value: `${isBanned.authorName}`, inline: true },
           {
             name: "Annettu",
-            value: `<t:${timeUtils.epochConverter(isBanned.createdAt)}:R>`,
+            value: `<t:${epochConverter(isBanned.createdAt)}:R>`,
             inline: true
           },
           {
@@ -132,14 +120,13 @@ module.exports = {
           isBanned.expiresAt
             ? {
                 name: "Loppuu",
-                value: `<t:${timeUtils.epochConverter(isBanned.expiresAt)}:R>`,
+                value: `<t:${epochConverter(isBanned.expiresAt)}:R>`,
                 inline: true
               }
             : { name: "\u200B", value: `\u200B`, inline: true }
         ]);
       return interaction.editReply({
-        embeds: [errorEmbedBase],
-        ephemeral: true
+        embeds: [errorEmbedBase]
       });
     }
 
@@ -154,7 +141,7 @@ module.exports = {
           { name: "Rankaisija", value: `${isMuted.authorName}`, inline: true },
           {
             name: "Annettu",
-            value: `<t:${timeUtils.epochConverter(isMuted.createdAt)}:R>`,
+            value: `<t:${epochConverter(isMuted.createdAt)}:R>`,
             inline: true
           },
           {
@@ -165,30 +152,27 @@ module.exports = {
           isMuted.expiresAt
             ? {
                 name: "Loppuu",
-                value: `<t:${timeUtils.epochConverter(isMuted.expiresAt)}:R>`,
+                value: `<t:${epochConverter(isMuted.expiresAt)}:R>`,
                 inline: true
               }
             : { name: "\u200B", value: `\u200B`, inline: true }
         ]);
       return interaction.editReply({
-        embeds: [errorEmbedBase],
-        ephemeral: true
+        embeds: [errorEmbedBase]
       });
     }
 
     // Validation
-    if (member.bot) {
+    if (user.bot) {
       errorEmbedBase.setDescription(`Et voi antaa mykistystä botille!`);
       return interaction.editReply({
-        embeds: [errorEmbedBase],
-        ephemeral: true
+        embeds: [errorEmbedBase]
       });
     }
     if (member.id === interaction.user.id) {
       errorEmbedBase.setDescription(`Et voi antaa mykistystä itsellesi!`);
       return interaction.editReply({
-        embeds: [errorEmbedBase],
-        ephemeral: true
+        embeds: [errorEmbedBase]
       });
     }
     if (!member.moderatable) {
@@ -196,8 +180,7 @@ module.exports = {
         `Et voi antaa mykistystä tälle käyttäjälle!`
       );
       return interaction.editReply({
-        embeds: [errorEmbedBase],
-        ephemeral: true
+        embeds: [errorEmbedBase]
       });
     }
     if (reason.length < 4 || reason.length > 200) {
@@ -205,8 +188,7 @@ module.exports = {
         `Mykistyksen syyn täytyy olla 4-200 merkkiä pitkä!`
       );
       return interaction.editReply({
-        embeds: [errorEmbedBase],
-        ephemeral: true
+        embeds: [errorEmbedBase]
       });
     }
     if (days < 1 || days > 28) {
@@ -214,13 +196,12 @@ module.exports = {
         `Mykistyksen keston täytyy olla 1-28 päivää! Mikäli haluttu kesto on suurempi, harkitse porttikiellon antamista.`
       );
       return interaction.editReply({
-        embeds: [errorEmbedBase],
-        ephemeral: true
+        embeds: [errorEmbedBase]
       });
     }
 
     if (deleteMessages)
-      await purgeMessages(interaction, member, deleteMessages);
+      await purgeMessages(interaction, member, parseInt(deleteMessages));
 
     // Initialize mute expiry date
     const expiresAt = new Date();
@@ -246,7 +227,7 @@ module.exports = {
       .setImage("https://i.stack.imgur.com/Fzh0w.png")
       .setAuthor({
         name: "Mykistys myönnetty",
-        iconURL: client.user.displayAvatarURL()
+        iconURL: client.user?.displayAvatarURL()
       })
       .setDescription(
         `Käyttäjälle **${member.user.tag}** on myönnetty mykistys!`
@@ -261,7 +242,7 @@ module.exports = {
         },
         {
           name: "Annettu",
-          value: `<t:${timeUtils.epochConverter(new Date())}:R>`,
+          value: `<t:${epochConverter(new Date())}:R>`,
           inline: true
         },
         {
@@ -271,7 +252,7 @@ module.exports = {
         },
         {
           name: "Loppuu",
-          value: `<t:${timeUtils.epochConverter(expiresAt)}:R>`,
+          value: `<t:${epochConverter(expiresAt)}:R>`,
           inline: true
         }
       ])
@@ -281,6 +262,6 @@ module.exports = {
       })
       .setTimestamp();
 
-    interaction.editReply({ embeds: [muteEmbed], ephemeral: silent });
+    interaction.editReply({ embeds: [muteEmbed] });
   }
 };

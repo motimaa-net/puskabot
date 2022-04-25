@@ -1,27 +1,26 @@
-const { readdirSync } = require("fs");
-const { REST } = require("@discordjs/rest");
-const { Routes } = require("discord-api-types/v9");
-const {
-  MessageEmbed,
+import { REST } from "@discordjs/rest";
+import { Routes } from "discord-api-types/v9";
+import {
+  Client,
   MessageActionRow,
   MessageButton,
-  Client,
+  MessageEmbed,
   TextChannel
-} = require("discord.js");
-const mongoose = require("mongoose");
-const config = require("../../config.json");
-const cronTasks = require("../utils/cronTasks");
+} from "discord.js";
+import { readdirSync } from "fs";
+import mongoose from "mongoose";
+import { config } from "../config";
+import {
+  banHandler,
+  muteHandler,
+  precenceUpdater,
+  warnHandler
+} from "../utils/cronTasks";
 
-module.exports = {
+export default {
   name: "ready",
   once: true,
-
-  /**
-   * @description Called once when the bot is ready.
-   * @param {Client} client
-   * @returns {void}
-   */
-  async execute(client) {
+  async execute(client: Client) {
     console.log("1");
     // Fance console log on startup. Dont judge me on the formatting. IT WORKS.
     console.log(`\u001b[92m `);
@@ -210,10 +209,10 @@ module.exports = {
       console.log("\u001b[37m(5/5) Botti on valmiina käyttöön.");
 
       // Cron tasks
-      cronTasks.precenceUpdater(client);
-      cronTasks.banHandler(client, true);
-      cronTasks.warnHandler(client, true);
-      cronTasks.muteHandler(client, true);
+      precenceUpdater(client);
+      banHandler(client, true);
+      warnHandler(client, true);
+      muteHandler(client, true);
     })();
   }
 };

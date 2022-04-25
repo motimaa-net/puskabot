@@ -1,15 +1,14 @@
-const { SlashCommandBuilder } = require("@discordjs/builders");
-const {
-  MessageEmbed,
+import { SlashCommandBuilder } from "@discordjs/builders";
+import {
   Client,
   CommandInteraction,
-  GuildMember
-} = require("discord.js");
-const config = require("../../config.json");
-const Bans = require("../models/banModel");
-const timeUtils = require("../utils/timeUtils");
+  GuildMember,
+  MessageEmbed
+} from "discord.js";
+import { config } from "../config";
+import Bans from "../models/banModel";
 
-module.exports = {
+export default {
   data: new SlashCommandBuilder()
     .setName("unban")
     .setDescription("Poista käyttäjältä porttikielto!")
@@ -28,47 +27,37 @@ module.exports = {
         .setRequired(true)
     ),
 
-  /**
-   * @description Unban command
-   * @param {Client} client
-   * @param {CommandInteraction} interaction
-   * @returns {void}
-   */
-  async execute(client, interaction) {
-    /**
-     * @type {GuildMember}
-     */
-    const member = interaction.options.getMember("käyttäjä");
+  async execute(client: Client, interaction: CommandInteraction) {
+    const user = interaction.options.getUser("käyttäjä", true);
+    const member = interaction.options.getMember("käyttäjä", true);
+    const silent = interaction.options.getBoolean("hiljainen", true);
 
-    /**
-     * @type {boolean}
-     */
-    const silent = interaction.options.getBoolean("hiljainen");
+    if (!(member instanceof GuildMember)) return;
 
     const errorEmbedBase = new MessageEmbed()
       .setColor(config.COLORS.ERROR)
       .setImage("https://i.stack.imgur.com/Fzh0w.png")
       .setAuthor({
         name: "Tapahtui virhe",
-        iconURL: client.user.displayAvatarURL()
+        iconURL: client.user?.displayAvatarURL()
       })
       .setFooter({
         text: interaction.user.username,
-        iconURL: interaction.user.displayAvatarURL()
+        iconURL: interaction.user?.displayAvatarURL()
       })
       .setTimestamp();
 
-    if (!member?.id) {
+    if (!user?.id) {
       errorEmbedBase.setDescription(
         `Kyseistä käyttäjää ei löytynyt! Käyttäjä on todennäköisesti poistunut palvelimelta!`
       );
       return interaction.reply({ embeds: [errorEmbedBase], ephemeral: true });
     }
 
-    const isBanned = await Bans.findOne({ userId: member.id, active: true });
+    const isBanned = await Bans.findOne({ userId: user.id, active: true });
     if (!isBanned) {
       errorEmbedBase.setDescription(
-        `Käyttäjällä **${member.user.tag}** ei ole voimassa olevaa porttikieltoa!`
+        `Käyttäjällä **${user.tag}** ei ole voimassa olevaa porttikieltoa!`
       );
       return interaction.reply({ embeds: [errorEmbedBase], ephemeral: true });
     }
@@ -92,7 +81,7 @@ module.exports = {
       .setImage("https://i.stack.imgur.com/Fzh0w.png")
       .setAuthor({
         name: "Porttikielto poistettu",
-        iconURL: client.user.displayAvatarURL()
+        iconURL: client.user?.displayAvatarURL()
       })
       .setDescription(
         `Käyttäjän **${member.user.tag}** porttikielto on poistettu!`

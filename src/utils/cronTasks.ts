@@ -1,203 +1,185 @@
-const { Client } = require("discord.js");
-const cron = require("node-cron");
-const config = require("../../config.json");
-const Bans = require("../models/banModel");
-const Mutes = require("../models/muteModel");
-const Warns = require("../models/warnModel");
+import { Client } from "discord.js";
+import cron from "node-cron";
+import { config } from "../config";
+import Bans from "../models/banModel";
+import Mutes from "../models/muteModel";
+import Warns from "../models/warnModel";
 
-const cronTasks = {
-  /**
-   * @description - Handles cron job for the bans.
-   * @param {Client} client
-   * @param {boolean} isCron
-   */
-  banHandler: async (client, isCron) => {
-    const removeExpiredBans = async () => {
-      const activeBans = await Bans.find({ active: true });
-      const expiredBans = [];
+export const banHandler = async (client: Client, isCron: boolean) => {
+  const removeExpiredBans = async () => {
+    const activeBans = await Bans.find({ active: true });
+    const expiredBans = [];
 
-      for (let x = 0; x < activeBans.length; x++) {
-        const banToCheck = activeBans[x];
-        if (banToCheck.expiresAt && banToCheck.expiresAt < Date.now()) {
-          expiredBans.push(banToCheck._id);
+    for (let x = 0; x < activeBans.length; x++) {
+      const banToCheck = activeBans[x];
+      if (banToCheck.expiresAt && banToCheck.expiresAt < Date.now()) {
+        expiredBans.push(banToCheck._id);
 
-          // Fetch the banned user and give old roles back if user is still on server + send message to user that ban has expired
-          client.guilds.cache
-            .get(config.GUILD_ID)
-            .members.fetch(banToCheck.userId)
-            .then((member) => {
-              if (member) {
-                member.roles.set(banToCheck.roles);
-                member
-                  .send({
-                    content: `Porttikieltosi on päättynyt!`
-                  })
-                  .catch((e) => {
-                    if (e.code === 50007) return;
-                    console.log(e);
-                  });
-              }
-            });
-        }
+        // Fetch the banned user and give old roles back if user is still on server + send message to user that ban has expired
+        client.guilds.cache
+          .get(config.GUILD_ID)
+          ?.members.fetch(banToCheck.userId)
+          .then((member) => {
+            if (member) {
+              member.roles.set(banToCheck.roles);
+              member
+                .send({
+                  content: `Porttikieltosi on päättynyt!`
+                })
+                .catch((e) => {
+                  if (e.code === 50007) return;
+                  console.log(e);
+                });
+            }
+          });
       }
-
-      // Update all expired bans to inactive
-      await Bans.updateMany(
-        { _id: { $in: expiredBans } },
-        { $set: { active: false } }
-      );
-
-      if (expiredBans.length > 0) {
-        console.log(
-          `> ${expiredBans.length} porttikieltoa vanheni ja käyttäjät on vapaita jälleen.`
-        );
-      }
-    };
-
-    // Cron task for removing expired bans
-    try {
-      // Run after startup
-      await removeExpiredBans();
-
-      // Runs every hour
-      if (isCron) {
-        cron.schedule("*/15 * * * *", () => {
-          removeExpiredBans();
-        });
-      }
-    } catch (error) {
-      console.log(error);
     }
-  },
 
-  /**
-   * @param {Client} client
-   * @param {boolean} isCron
-   * @description - Handles cron job for the warns.
-   */
-  warnHandler: async (client, isCron) => {
-    const removeExpiredWarns = async () => {
-      const activeWarnings = await Warns.find({ active: true });
-      const expiredWarns = [];
-      for (let x = 0; x < activeWarnings.length; x++) {
-        const warnToCheck = activeWarnings[x];
-        if (warnToCheck.expiresAt && warnToCheck.expiresAt < Date.now()) {
-          expiredWarns.push(warnToCheck._id);
-        }
-      }
-      await Warns.updateMany(
-        { _id: { $in: expiredWarns } },
-        { $set: { active: false } }
+    // Update all expired bans to inactive
+    await Bans.updateMany(
+      { _id: { $in: expiredBans } },
+      { $set: { active: false } }
+    );
+
+    if (expiredBans.length > 0) {
+      console.log(
+        `> ${expiredBans.length} porttikieltoa vanheni ja käyttäjät on vapaita jälleen.`
       );
-      if (expiredWarns.length > 0) {
-        console.log(
-          `=> ${expiredWarns.length} vanhentunutta varoitusta poistettu.`
-        );
-      }
-    };
-    try {
-      // Run after startup
-      await removeExpiredWarns();
-
-      // Runs every hour
-      if (isCron) {
-        cron.schedule("*/15 * * * *", () => {
-          removeExpiredWarns();
-        });
-      }
-    } catch (error) {
-      console.log(error);
     }
-  },
-  /**
-   * @description - Handles cron job for the mutes.
-   * @param {Client} client
-   * @param {boolean} isCron
-   */
-  muteHandler: async (client, isCron) => {
-    const removeExpiredMutes = async () => {
-      const activeMutes = await Mutes.find({ active: true });
-      const expiredMutes = [];
+  };
 
-      for (let x = 0; x < activeMutes.length; x++) {
-        const muteToCheck = activeMutes[x];
-        if (muteToCheck.expiresAt && muteToCheck.expiresAt < Date.now()) {
-          expiredMutes.push(muteToCheck._id);
+  // Cron task for removing expired bans
+  try {
+    // Run after startup
+    await removeExpiredBans();
 
-          // Fetch the banned user and give old roles back if user is still on server + send message to user that ban has expired
-          client.guilds.cache
-            .get(config.GUILD_ID)
-            .members.fetch(muteToCheck.userId)
-            .then((member) => {
-              if (member) {
-                member
-                  .send({
-                    content: `Mykistyksesi on päättynyt!`
-                  })
-                  .catch((e) => {
-                    if (e.code === 50007) return;
-                    console.log(e);
-                  });
-              }
-            });
-        }
-      }
-
-      // Update all expired Mutes to inactive
-      await Mutes.updateMany(
-        { _id: { $in: expiredMutes } },
-        { $set: { active: false } }
-      );
-
-      if (expiredMutes.length > 0) {
-        console.log(
-          `> ${expiredMutes.length} mykistystä vanheni ja käyttäjät voival osallistua keskusteluun.`
-        );
-      }
-    };
-
-    // Cron task for removing expired bans
-    try {
-      // Run after startup
-      await removeExpiredMutes();
-
-      // Runs every hour
-      if (isCron) {
-        cron.schedule("*/15 * * * *", () => {
-          removeExpiredMutes();
-        });
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  },
-  /**
-   * @description - Updates motimaa.net playercount to bot's precense.
-   * @param {Client} client
-   */
-  precenceUpdater: (client) => {
-    const updatePrecense = async () => {
-      const members = await (
-        await client.guilds.cache.get(config.GUILD_ID)
-      ).members.fetch();
-      const memberCount = members.filter((member) => !member.user.bot).size;
-
-      return client.user.setActivity(`${memberCount} käyttäjää`, {
-        type: "WATCHING"
-      });
-    };
-    try {
-      // Run after startup
-      updatePrecense();
-
-      // Runs every 15minutes
+    // Runs every hour
+    if (isCron) {
       cron.schedule("*/15 * * * *", () => {
-        updatePrecense();
+        removeExpiredBans();
       });
-    } catch (error) {
-      console.log(error);
     }
+  } catch (error) {
+    console.log(error);
   }
 };
 
-module.exports = cronTasks;
+export const warnHandler = async (client: Client, isCron: boolean) => {
+  const removeExpiredWarns = async () => {
+    const activeWarnings = await Warns.find({ active: true });
+    const expiredWarns = [];
+    for (let x = 0; x < activeWarnings.length; x++) {
+      const warnToCheck = activeWarnings[x];
+      if (warnToCheck.expiresAt && warnToCheck.expiresAt < Date.now()) {
+        expiredWarns.push(warnToCheck._id);
+      }
+    }
+    await Warns.updateMany(
+      { _id: { $in: expiredWarns } },
+      { $set: { active: false } }
+    );
+    if (expiredWarns.length > 0) {
+      console.log(
+        `=> ${expiredWarns.length} vanhentunutta varoitusta poistettu.`
+      );
+    }
+  };
+  try {
+    // Run after startup
+    await removeExpiredWarns();
+
+    // Runs every hour
+    if (isCron) {
+      cron.schedule("*/15 * * * *", () => {
+        removeExpiredWarns();
+      });
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const muteHandler = async (client: Client, isCron: boolean) => {
+  const removeExpiredMutes = async () => {
+    const activeMutes = await Mutes.find({ active: true });
+    const expiredMutes = [];
+
+    for (let x = 0; x < activeMutes.length; x++) {
+      const muteToCheck = activeMutes[x];
+      if (muteToCheck.expiresAt && muteToCheck.expiresAt < Date.now()) {
+        expiredMutes.push(muteToCheck._id);
+
+        // Fetch the banned user and give old roles back if user is still on server + send message to user that ban has expired
+        client.guilds.cache
+          .get(config.GUILD_ID)
+          ?.members.fetch(muteToCheck.userId)
+          .then((member) => {
+            if (member) {
+              member
+                .send({
+                  content: `Mykistyksesi on päättynyt!`
+                })
+                .catch((e) => {
+                  if (e.code === 50007) return;
+                  console.log(e);
+                });
+            }
+          });
+      }
+    }
+
+    // Update all expired Mutes to inactive
+    await Mutes.updateMany(
+      { _id: { $in: expiredMutes } },
+      { $set: { active: false } }
+    );
+
+    if (expiredMutes.length > 0) {
+      console.log(
+        `> ${expiredMutes.length} mykistystä vanheni ja käyttäjät voival osallistua keskusteluun.`
+      );
+    }
+  };
+
+  // Cron task for removing expired bans
+  try {
+    // Run after startup
+    await removeExpiredMutes();
+
+    // Runs every hour
+    if (isCron) {
+      cron.schedule("*/15 * * * *", () => {
+        removeExpiredMutes();
+      });
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
+/**
+ * @description - Updates motimaa.net playercount to bot's precense.
+ * @param {Client} client
+ */
+export const precenceUpdater = (client: Client) => {
+  const updatePrecense = async () => {
+    const members = await (
+      await client.guilds.cache.get(config.GUILD_ID)
+    )?.members.fetch();
+    const memberCount = members?.filter((member) => !member.user.bot).size;
+
+    return client.user?.setActivity(`${memberCount ?? 0} käyttäjää`, {
+      type: "WATCHING"
+    });
+  };
+  try {
+    // Run after startup
+    updatePrecense();
+
+    // Runs every 15minutes
+    cron.schedule("*/15 * * * *", () => {
+      updatePrecense();
+    });
+  } catch (error) {
+    console.log(error);
+  }
+};
