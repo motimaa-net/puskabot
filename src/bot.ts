@@ -13,11 +13,12 @@ const client = new Client({
 });
 
 // Load events
-const eventFiles = readdirSync("./src/events").filter((file) =>
-  file.endsWith(".js")
+const eventFiles = readdirSync(`${__dirname}/events`).filter((file) =>
+  file.endsWith(".ts")
 );
-for (const file of eventFiles) {
-  const event = require(`./src/events/${file}`);
+
+for await (const file of eventFiles) {
+  const event = await import(`${__dirname}/events/${file}`);
   if (event.once) {
     client.once(event.name, (...args) => event.execute(client, ...args));
   } else {
@@ -27,11 +28,12 @@ for (const file of eventFiles) {
 
 // Load commands
 client.commands = new Collection();
-const commandFiles = readdirSync("./src/commands").filter((file) =>
-  file.endsWith(".js")
+const commandFiles = readdirSync(`${__dirname}/commands`).filter((file) =>
+  file.endsWith(".ts")
 );
-for (const file of commandFiles) {
-  const command = require(`./src/commands/${file}`);
+for await (const file of commandFiles) {
+  const command = await import(`${__dirname}/commands/${file}`);
+  console.log(command);
   client.commands.set(command.data.name, command);
 }
 

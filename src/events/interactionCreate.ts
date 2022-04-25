@@ -1,5 +1,6 @@
 import {
   Client,
+  DiscordAPIError,
   GuildMember,
   Interaction,
   MessageEmbed,
@@ -61,7 +62,7 @@ export default {
           .setImage("https://i.stack.imgur.com/Fzh0w.png")
           .setAuthor({
             name: "Porttikielto myönnetty",
-            iconURL: client.user.displayAvatarURL()
+            iconURL: client.user?.displayAvatarURL()
           })
           .setDescription(`Sinulle on myönnetty porttikielto!`)
           .addFields([
@@ -105,36 +106,38 @@ export default {
       } else if (interaction.customId.startsWith("selfRole-")) {
         await interaction.deferReply({ ephemeral: true });
         const roleId = interaction.customId.split("-")[1];
-        const roleToGive = interaction.guild.roles.cache.find(
+        const roleToGive = interaction.guild?.roles?.cache.find(
           (role) => role.id === roleId
         );
         if (!roleToGive) {
           return interaction.editReply({
             content:
-              "Roolia ei löytynyt! Ilmoita tästä palvelimen ylläpitäjille.",
-            ephemeral: true
+              "Roolia ei löytynyt! Ilmoita tästä palvelimen ylläpitäjille."
           });
         }
         try {
-          if (!interaction.member.roles.cache.has(roleToGive.id)) {
-            await interaction.member.roles.add(roleToGive);
+          if (!(interaction?.member instanceof GuildMember)) return;
+
+          if (
+            !(interaction?.member as GuildMember)?.roles?.cache.has(
+              roleToGive.id
+            )
+          ) {
+            await (interaction?.member as GuildMember)?.roles.add(roleToGive);
             return interaction.editReply({
-              content: `Olet lisännyt itsellesi roolin **${roleToGive.name}**!`,
-              ephemeral: true
+              content: `Olet lisännyt itsellesi roolin **${roleToGive.name}**!`
             });
           } else {
             interaction.member.roles.remove(roleToGive.id);
             return interaction.editReply({
-              content: `Poistit itseltäsi roolin **${roleToGive.name}**!`,
-              ephemeral: true
+              content: `Poistit itseltäsi roolin **${roleToGive.name}**!`
             });
           }
         } catch (error) {
-          if (error.code === 10062) return;
+          if ((error as DiscordAPIError)?.code === 10062) return;
           console.error(error);
           return interaction.editReply({
-            content: "Tapahtui virhe! Ilmoita tästä palvelimen ylläpitäjille.",
-            ephemeral: true
+            content: "Tapahtui virhe! Ilmoita tästä palvelimen ylläpitäjille."
           });
         }
       }

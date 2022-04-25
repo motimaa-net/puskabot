@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Discord bot for Finland's biggest Minecraft-server! ",
   "main": "bot.ts",
+  "type": "module",
   "scripts": {
     "start": "ts-node src/bot.ts",
     "pretty": "prettier --write \"./**/*.{ts,json}\""

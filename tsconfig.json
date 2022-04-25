@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
-    "target": "ESNext",
-    "module": "commonjs",
+    "target": "ESnext",
+    "module": "ESnext",
     "rootDir": "./src/",
     "outDir": "./dist/",
     "strict": true,
@@ -19,7 +19,10 @@
     "sourceMap": false,
     "baseUrl": "./"
   },
-  "files": ["src/bot.ts"],
-  "include": ["./**/*.ts", "src/utils/paginationHandler.js"],
+  "ts-node": {
+    "files": true
+  },
+  "files": ["src/bot.ts", "types.d.ts"],
+  "include": ["src/**/*.ts", "src/utils/paginationHandler.js"],
   "exclude": ["node_modules", "dist"]
 }

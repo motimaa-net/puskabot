@@ -1,4 +1,4 @@
-import { Client, Message } from "discord.js";
+import { Client, Message, TextChannel } from "discord.js";
 import { config } from "../config";
 
 const usersMap = new Map();
@@ -12,7 +12,7 @@ export default {
   async execute(client: Client, m: Message) {
     if (m.author.bot) return;
 
-    const staff = m.member.roles.cache.some((r) =>
+    const staff = m.member?.roles.cache.some((r) =>
       config.STAFF_ROLES.includes(r.id)
     );
     if (staff) return;
@@ -25,19 +25,22 @@ export default {
         // Get the invite from string
         const inviteLink = m.content
           .match(inviteRegex)
-          .find((invite) => invite);
-        const guildInvites = (await m.guild.invites.fetch()).map(
+          ?.find((invite) => invite);
+
+        if (!inviteLink) return;
+
+        const guildInvites = (await m.guild?.invites.fetch())?.map(
           (invite) => invite.url
         );
         // Check if inviteLink contains any of the guildInvites codes
-        if (!guildInvites.includes(inviteLink)) {
+        if (!guildInvites?.includes(inviteLink)) {
           await m.reply({
-            content: `Hei <@${m.member.user.id}>! Kutsulinkkien jakaminen muille palvelimille on kielletty.`
+            content: `Hei <@${m.member?.user.id}>! Kutsulinkkien jakaminen muille palvelimille on kielletty.`
           });
 
           m.createdTimestamp += 30000;
 
-          await m.member.disableCommunicationUntil(
+          await m.member?.disableCommunicationUntil(
             m.createdTimestamp,
             "Kutsulinkkien jakaminen muille palvelimille on kielletty."
           );
@@ -49,7 +52,7 @@ export default {
         }
       }
     }
-    if (config.SPAN_HANDLER) {
+    if (config.SPAM_HANDLER) {
       if (usersMap.has(m.author.id)) {
         const userData = usersMap.get(m.author.id);
         const { lastMessage, timer } = userData;
@@ -68,15 +71,14 @@ export default {
           if (parseInt(msgCount) === LIMIT) {
             m.reply({
               content:
-                "Kappas kummaa, nalkkiin jäit senkin pikkurikollinen! Spammiviestien lähettäminen ei ole sallittua.",
-              ephemeral: true
+                "Kappas kummaa, nalkkiin jäit senkin pikkurikollinen! Spammiviestien lähettäminen ei ole sallittua."
             });
             m.createdTimestamp += 3000;
-            await m.member.disableCommunicationUntil(
+            await m.member?.disableCommunicationUntil(
               m.createdTimestamp,
               "Kappas kummaa, nalkkiin jäit senkin pikkurikollinen! Spammiviestien lähettäminen ei ole sallittua."
             );
-            m.channel.bulkDelete(LIMIT);
+            (m.channel as TextChannel).bulkDelete(LIMIT);
           } else {
             userData.msgCount = msgCount;
             usersMap.set(m.author.id, userData);
