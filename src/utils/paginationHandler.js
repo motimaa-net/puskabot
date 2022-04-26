@@ -128,4 +128,3 @@ export const paginationHandler = async (interaction, pages) => {
   await buttonPaginator.send();
   return buttonPaginator.message;
 };
-module.exports = paginationHandler;
