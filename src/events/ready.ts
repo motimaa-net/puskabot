@@ -49,11 +49,11 @@ export default {
     // Get all commands
     const path = `${__dirname}/../commands`;
     const commands = [];
-    const commandFiles = readdirSync(path).filter((file) =>
-      file.endsWith(".ts")
+    const commandFiles = readdirSync(path).filter(
+      (file) => file.endsWith(".ts") || file.endsWith(".js")
     );
     for await (const file of commandFiles) {
-      const command = await import(`../commands/${file}`);
+      const command = (await import(`../commands/${file}`)).default;
       commands.push(command.data.toJSON());
     }
 

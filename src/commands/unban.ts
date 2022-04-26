@@ -7,6 +7,7 @@ import {
 } from "discord.js";
 import { config } from "../config";
 import Bans from "../models/banModel";
+import { epochConverter } from "../utils/timeUtils";
 
 export default {
   data: new SlashCommandBuilder()
@@ -101,7 +102,7 @@ export default {
         },
         {
           name: "Poistettu",
-          value: `<t:${timeUtils.epochConverter(new Date())}:R>`,
+          value: `<t:${epochConverter(new Date())}:R>`,
           inline: true
         },
         { name: "\u200B", value: `\u200B`, inline: true }

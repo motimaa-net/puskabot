@@ -20,10 +20,11 @@ export default {
         !(interaction?.member as GuildMember)?.permissions?.has(
           Permissions.FLAGS.MANAGE_MESSAGES
         )
-      )
+      ) {
         return;
+      }
 
-      const command = client.commands.get(interaction.commandName);
+      const command = client.commands.get(interaction.commandName).default;
       if (!command) return;
 
       try {

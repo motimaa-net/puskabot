@@ -2,8 +2,6 @@ import { Client, Collection, Intents } from "discord.js";
 import { readdirSync } from "fs";
 import { config } from "./config";
 
-export type ClientType = {};
-
 const client = new Client({
   intents: [
     Intents.FLAGS.GUILDS,
@@ -12,30 +10,31 @@ const client = new Client({
   ]
 });
 
-// Load events
-const eventFiles = readdirSync(`${__dirname}/events`).filter((file) =>
-  file.endsWith(".ts")
-);
+(async () => {
+  // Load events
+  const eventFiles = readdirSync(`${__dirname}/events`).filter(
+    (file) => file.endsWith(".ts") || file.endsWith(".js")
+  );
 
-for await (const file of eventFiles) {
-  const event = await import(`${__dirname}/events/${file}`);
-  if (event.once) {
-    client.once(event.name, (...args) => event.execute(client, ...args));
-  } else {
-    client.on(event.name, (...args) => event.execute(client, ...args));
+  for await (const file of eventFiles) {
+    const event = (await import(`${__dirname}/events/${file}`)).default;
+    if (event.once) {
+      client.once(event.name, (...args) => event.execute(client, ...args));
+    } else {
+      client.on(event.name, (...args) => event.execute(client, ...args));
+    }
   }
-}
 
-// Load commands
-client.commands = new Collection();
-const commandFiles = readdirSync(`${__dirname}/commands`).filter((file) =>
-  file.endsWith(".ts")
-);
-for await (const file of commandFiles) {
-  const command = await import(`${__dirname}/commands/${file}`);
-  console.log(command);
-  client.commands.set(command.data.name, command);
-}
+  // Load commands
+  client.commands = new Collection();
+  const commandFiles = readdirSync(`${__dirname}/commands`).filter(
+    (file) => file.endsWith(".ts") || file.endsWith(".js")
+  );
+  for await (const file of commandFiles) {
+    const command = await import(`${__dirname}/commands/${file}`);
+    client.commands.set(command.default.data.name, command);
+  }
 
-// Initialize client
-client.login(config.BOT_TOKEN);
+  // Initialize client
+  client.login(config.BOT_TOKEN);
+})();

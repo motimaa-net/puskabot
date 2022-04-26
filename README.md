@@ -46,77 +46,45 @@ You can clone this repo and host the bot yourself.
 git clone https://github.com/motimaa-net/puskabot.git
 ```
 
-After cloning, run an
+Install yarn globally
 
 ```
-npm install
+npm i -g yarn
 ```
 
-to snag all of the dependencies. Of course, you need [node](https://nodejs.org/en/) installed. I also strongly recommend [nodemon](https://www.npmjs.com/package/nodemon) as it makes testing _much_ easier.
+After installing yarn install dependencies
+
+```
+yarn
+```
+
+to snag all of the dependencies. Of course, you need [node](https://nodejs.org/en/) installed.
 
 ## Setting Up
 
-Rename `example-config.json` to `config.json`. Your file should look something like this:
+Rename `src/example-config.ts` to `config.ts`. Fill in the values in `config.ts` and run the bot.
 
-```json
-{
-    "BOT_TOKEN": "BOT_TOKEN",
-    "MONGODB_URI": "MONGODB_URI",
-    "CLIENT_ID": "CLIENT_ID",
-    "GUILD_ID": "GUILD_ID",
-    "STAFF_ROLES": ["STAFF_ROLE_ID"],
-    "ROLE_CHANNEL": "ROLE_CHANNEL_ID",
-    "COLORS": {
-        "SUCCESS": "#55FF55",
-        "ERROR": "#FF5555",
-        "WARNING": "#FFFF55"
-    },
-    "BAN_ROLE": "BAN_ROLE",
-    "BAN_CHANNEL": "BAN_CHANNEL",
-    "MUTE_ROLE": "MUTE_ROLE",
-    "TICKET_CHANNEL": "TICKET_CHANNEL_ID",
-    "TICKET_CATEGORY": "TICKET_CATEGORY_ID",
-    "WARN_EXPIRES": 30,
-    "WARN_THRESHOLD": 4,
-    "WARN_BAN_DAYS": 30,
-    "DELETE_INVITES": true,
-    "SPAN_HANDLER": false,
-    "SELF_ROLES": [
-        {
-            "ID": "ROLE_ID",
-            "NAME": "Minecraft",
-            "EMOJI": "⛏"
-        },
-        {
-            "ID": "ROLE_ID",
-            "NAME": "FiveM",
-            "EMOJI": "👮"
-        },
-        {
-            "ID": "ROLE_ID",
-            "NAME": "Yhteisö",
-            "EMOJI": "✨"
-        },
-        {
-            "ID": "ROLE_ID",
-            "NAME": "Viikkokooste",
-            "EMOJI": "👥"
-        }
-    ]
-}
+Development:
+
+```
+yarn dev
+```
+
+Production:
+
+```
+yarn start
 ```
 
 Visit the Discord [developer portal](https://discordapp.com/developers/applications/) to create an app and use the client token you are given for the `BOT_TOKEN` option. `GUILD_ID` is your server's ID.
 
-After your `config.json` file is built, you have to enable `Privileged Intents` on your Discord [developer portal](https://discordapp.com/developers/applications/). You can find these intents under the "Bot" section, and there are two ticks you have to switch on.
-
-Once done, launch the bot using the command `node bot.js` or `nodemon bot.js`. If on Linux, you can also kick off using the `start.sh` script.
+After your `src/config.ts` file is built, you have to enable `Privileged Intents` on your Discord [developer portal](https://discordapp.com/developers/applications/). You can find these intents under the "Bot" section, and there are two ticks you have to switch on.
 
 ## To-Do
 
 Puskabot is in a continuous state of development. New features/updates may come at any time. Some pending ideas are:
 
--   Nothing atm? Ideas?
+- Nothing atm? Ideas / pr's welcome?
 
 ## License
 
