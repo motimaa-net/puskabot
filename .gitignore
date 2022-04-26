@@ -1,5 +1,6 @@
 # Ignore
 node_modules
 .env
-.vscode
 config.json
+config.ts
+dist
