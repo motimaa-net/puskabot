@@ -35,13 +35,13 @@ export default {
     );
     console.log(`    \u001b[92m╰────────────────────────────────────────╯`);
     console.log(`\u001b[92m`);
-    console.log(`\u001b[37m(1/5) Kirjauduttu käyttäjänä ${client.user?.tag}.`);
+    console.log(`\u001b[37m(1/4) Kirjauduttu käyttäjänä ${client.user?.tag}.`);
 
     // Database connection
     const MongoURI = config.MONGODB_URI;
     try {
       await mongoose.connect(MongoURI);
-      console.log("\u001b[37m(2/5) MongoDB yhdistetty...");
+      console.log("\u001b[37m(2/4) MongoDB yhdistetty...");
     } catch (err) {
       return console.log(err);
     }
@@ -67,7 +67,7 @@ export default {
           }
         );
 
-        console.log("\u001b[37m(3/5) Applikaation komennot rekisteröity.");
+        console.log("\u001b[37m(3/4) Applikaation komennot rekisteröity.");
       } catch (error) {
         console.error(error);
       }
