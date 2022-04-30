@@ -1,7 +1,6 @@
 import { REST } from "@discordjs/rest";
 import { Routes } from "discord-api-types/v9";
 import {
-  ApplicationCommandPermissionData,
   Client,
   MessageActionRow,
   MessageButton,
@@ -72,38 +71,6 @@ export default {
       } catch (error) {
         console.error(error);
       }
-
-      type RolesType = ApplicationCommandPermissionData;
-
-      const roles: ApplicationCommandPermissionData[] = [];
-      const fullPermissions: { id: string; permissions: RolesType[] }[] = [];
-      const staffRoleList = config.STAFF_ROLES;
-
-      // Roles with staff roles can use slash commands
-      for (let i = 0; i < staffRoleList.length; i += 1) {
-        const id = staffRoleList[i];
-        roles.push({
-          id,
-          type: "ROLE",
-          permission: true
-        });
-      }
-
-      const registeredCommands = await client.guilds.cache
-        .get(config.GUILD_ID)
-        ?.commands.fetch();
-
-      registeredCommands?.forEach((command) => {
-        fullPermissions.push({
-          id: command.id,
-          permissions: roles
-        });
-      });
-
-      await client.guilds.cache
-        .get(config.GUILD_ID)
-        ?.commands.permissions.set({ fullPermissions });
-      console.log("\u001b[37m(4/5) Komentojen oikeudet rekisteröity.");
 
       const banChannel = client.channels.cache.find(
         (channel) => channel.id === config.BAN_CHANNEL
@@ -204,7 +171,7 @@ export default {
         selfRoleChannel.send({ embeds: [banInfoEmbed], components: roleRows });
       }
 
-      console.log("\u001b[37m(5/5) Botti on valmiina käyttöön.");
+      console.log("\u001b[37m(4/4) Botti on valmiina käyttöön.");
 
       // Cron tasks
       precenceUpdater(client);
