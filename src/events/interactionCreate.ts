@@ -85,12 +85,12 @@ export default {
             },
             {
               name: "Kesto",
-              value: banDetails.days
-                ? `${banDetails.days} päivää`
+              value: banDetails.length
+                ? `${banDetails.length} päivää`
                 : "**Ikuinen**",
               inline: true
             },
-            banDetails.days
+            banDetails.length
               ? {
                   name: "Loppuu",
                   value: `<t:${epochConverter(banDetails.expiresAt)}:R>`,
