@@ -20,21 +20,22 @@
     "npm": ">=7.0.0"
   },
   "dependencies": {
-    "@discordjs/builders": "^0.13.0",
-    "@discordjs/rest": "^0.4.1",
+    "@discordjs/builders": "^0.15.0",
+    "@discordjs/rest": "^0.5.0",
     "@psibean/discord.js-pagination": "^4.0.5",
-    "discord-api-types": "^0.32.1",
-    "discord.js": "^13.7.0",
-    "mongoose": "^6.3.3",
-    "node-cron": "^3.0.0"
+    "discord-api-types": "^0.35.0",
+    "discord.js": "^13.8.1",
+    "mongoose": "^6.4.0",
+    "node-cron": "^3.0.1"
   },
   "devDependencies": {
-    "@types/node": "^17.0.33",
-    "eslint": "^8.15.0",
+    "@types/node": "^18.0.0",
+    "@types/node-cron": "^3.0.1",
+    "eslint": "^8.18.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-prettier": "^4.0.0",
-    "prettier": "^2.5.0",
-    "ts-node": "^10.7.0",
-    "typescript": "^4.6.4"
+    "prettier": "^2.7.1",
+    "ts-node": "^10.8.1",
+    "typescript": "^4.7.4"
   }
 }
