@@ -55,7 +55,10 @@ export default {
       return interaction.reply({ embeds: [errorEmbedBase], ephemeral: true });
     }
 
-    const isBanned = await Bans.findOne({ userId: user.id, active: true });
+    const isBanned = await Bans.findOne({
+      "user.id": user.id,
+      "expiration.active": true
+    });
     if (!isBanned) {
       errorEmbedBase.setDescription(
         `Käyttäjällä **${user.tag}** ei ole voimassa olevaa porttikieltoa!`
@@ -66,11 +69,11 @@ export default {
     member.roles.set(isBanned.roles);
 
     await Bans.findOneAndUpdate(
-      { userId: member.id, active: true },
+      { "user.id": member.id, "expiration.active": true },
       {
         $set: {
           active: false,
-          removedType: "manual",
+          removedType: "removed",
           removedAt: new Date(),
           removedBy: interaction.user.tag
         }
@@ -92,12 +95,14 @@ export default {
         { name: "Syynä", value: `${isBanned.reason}`, inline: true },
         {
           name: "Rankaisija",
-          value: `${isBanned.authorName}`,
+          value: `${isBanned.author.username}`,
           inline: true
         },
         {
           name: "Kesto",
-          value: isBanned.length ? `${isBanned.length} päivää` : "**Ikuinen**",
+          value: isBanned.expiration.length
+            ? `${isBanned.expiration.length} päivää`
+            : "**Ikuinen**",
           inline: true
         },
         {

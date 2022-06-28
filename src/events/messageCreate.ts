@@ -1,10 +1,5 @@
-import { Client, Message, TextChannel } from "discord.js";
+import { Client, Message } from "discord.js";
 import { config } from "../config";
-
-const usersMap = new Map();
-const LIMIT = 7;
-const DIFF = 5000;
-const TIME = 30000;
 
 export default {
   name: "messageCreate",
@@ -50,49 +45,6 @@ export default {
             console.log(e);
           });
         }
-      }
-    }
-    if (config.SPAM_HANDLER) {
-      if (usersMap.has(m.author.id)) {
-        const userData = usersMap.get(m.author.id);
-        const { lastMessage, timer } = userData;
-        const difference = m.createdTimestamp - lastMessage.createdTimestamp;
-        let msgCount = userData.msgCount;
-        if (difference > DIFF) {
-          clearTimeout(timer);
-          userData.msgCount = 1;
-          userData.lastMessage = m;
-          userData.timer = setTimeout(() => {
-            usersMap.delete(m.author.id);
-          }, TIME);
-          usersMap.set(m.author.id, userData);
-        } else {
-          ++msgCount;
-          if (parseInt(msgCount) === LIMIT) {
-            m.reply({
-              content:
-                "Kappas kummaa, nalkkiin jäit senkin pikkurikollinen! Spammiviestien lähettäminen ei ole sallittua."
-            });
-            m.createdTimestamp += 3000;
-            await m.member?.disableCommunicationUntil(
-              m.createdTimestamp,
-              "Kappas kummaa, nalkkiin jäit senkin pikkurikollinen! Spammiviestien lähettäminen ei ole sallittua."
-            );
-            (m.channel as TextChannel).bulkDelete(LIMIT);
-          } else {
-            userData.msgCount = msgCount;
-            usersMap.set(m.author.id, userData);
-          }
-        }
-      } else {
-        let fn = setTimeout(() => {
-          usersMap.delete(m.author.id);
-        }, TIME);
-        usersMap.set(m.author.id, {
-          msgCount: 1,
-          lastMessage: m,
-          timer: fn
-        });
       }
     }
 

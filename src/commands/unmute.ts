@@ -70,7 +70,7 @@ export default {
       {
         $set: {
           active: false,
-          removedType: "manual",
+          removedType: "removed",
           removedAt: new Date(),
           removedBy: interaction.user.tag
         }
@@ -90,12 +90,14 @@ export default {
         { name: "Syynä", value: `${isMuted.reason}`, inline: true },
         {
           name: "Rankaisija",
-          value: `${isMuted.authorName}`,
+          value: `${isMuted.author.username}`,
           inline: true
         },
         {
           name: "Kesto",
-          value: isMuted.length ? `${isMuted.length} päivää` : "**Ikuinen**",
+          value: isMuted.expiration.length
+            ? `${isMuted.expiration.length} päivää`
+            : "**Ikuinen**",
           inline: true
         },
         {

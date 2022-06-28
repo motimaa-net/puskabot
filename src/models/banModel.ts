@@ -1,61 +1,81 @@
-import { model, Schema } from "mongoose";
+import { Document, model, Schema } from "mongoose";
 
-const banSchema = new Schema(
+export interface Ban extends Document {
+  createdAt: Date;
+  updatedAt: Date;
+  reason: string;
+  roles: string[];
+  user: {
+    id: string;
+    username: string;
+  };
+  author: {
+    id: string;
+    username: string;
+  };
+  expiration: {
+    active: boolean;
+    length: number | null;
+    expiresAt: Date | null;
+    removedAt: Date | null;
+    removedBy: string | null;
+  };
+}
+
+const BanSchema = new Schema<Ban>(
   {
-    userId: {
-      type: String,
-      required: true
-    },
-    username: {
-      type: String
-    },
-
-    roles: {
-      type: Array,
-      required: true,
-      default: []
-    },
-
-    authorId: {
-      type: String,
-      required: true
-    },
-    authorName: {
-      type: String
-    },
-
     reason: {
       type: String,
       trim: true,
       required: true
     },
-
-    length: {
-      type: Number
+    roles: {
+      type: [String],
+      default: []
     },
-    expiresAt: {
-      type: Date
+    user: {
+      id: {
+        type: String,
+        required: true
+      },
+      username: {
+        type: String,
+        required: true
+      }
     },
-
-    removedType: {
-      type: String,
-      default: "expired"
+    author: {
+      id: {
+        type: String,
+        required: true
+      },
+      username: {
+        type: String,
+        required: true
+      }
     },
-    removedAt: {
-      type: Date
-    },
-    removedBy: {
-      type: String,
-      trim: true
-    },
-
-    active: {
-      type: Boolean,
-      default: true
+    expiration: {
+      active: {
+        type: Boolean,
+        default: true
+      },
+      length: {
+        type: Number,
+        required: true,
+        min: 0
+      },
+      expiresAt: {
+        type: Date
+      },
+      removedAt: {
+        type: Date
+      },
+      removedBy: {
+        type: String
+      }
     }
   },
   {
     timestamps: true
   }
 );
-export default model("bans", banSchema);
+export default model<Ban>("Bans", BanSchema);

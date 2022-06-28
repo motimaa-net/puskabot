@@ -101,9 +101,17 @@ export default {
       errorEmbedBase
         .setDescription(`Käyttäjällä **${user.tag}** on jo porttikielto!`)
         .addFields([
-          { name: "Käyttäjä", value: `${isBanned.username}`, inline: true },
+          {
+            name: "Käyttäjä",
+            value: `${isBanned.user.username}`,
+            inline: true
+          },
           { name: "Syynä", value: `${isBanned.reason}`, inline: true },
-          { name: "Rankaisija", value: `${isBanned.authorName}`, inline: true },
+          {
+            name: "Rankaisija",
+            value: `${isBanned.author.username}`,
+            inline: true
+          },
           {
             name: "Annettu",
             value: `<t:${epochConverter(isBanned.createdAt)}:R>`,
@@ -111,15 +119,15 @@ export default {
           },
           {
             name: "Kesto",
-            value: isBanned.length
-              ? `${isBanned.length} päivää`
+            value: isBanned.expiration.length
+              ? `${isBanned.expiration.length} päivää`
               : "**Ikuinen**",
             inline: true
           },
-          isBanned.expiresAt
+          isBanned.expiration.expiresAt
             ? {
                 name: "Loppuu",
-                value: `<t:${epochConverter(isBanned.expiresAt)}:R>`,
+                value: `<t:${epochConverter(isBanned.expiration.expiresAt)}:R>`,
                 inline: true
               }
             : { name: "\u200B", value: `\u200B`, inline: true }
@@ -189,17 +197,23 @@ export default {
     expiresAt.setDate(expiresAt.getDate() + (days ?? 0));
 
     const newBan = new Bans({
-      userId: member.id,
-      username: `${member.user.tag}`,
-
-      authorId: interaction.user.id,
-      authorName: `${interaction.user.tag}`,
-
-      roles: userRoles,
-
       reason,
-      length: days || null,
-      expiresAt: days ? expiresAt : null
+      roles: userRoles,
+      user: {
+        id: user.id,
+        username: user.username
+      },
+      author: {
+        id: interaction.user.id,
+        username: interaction.user.username
+      },
+      expiration: {
+        length: days || null,
+        expiresAt: days ? expiresAt : null,
+        active: true,
+        removedAt: null,
+        removedBy: null
+      }
     });
     await newBan.save();
     const banEmbed = new MessageEmbed()

@@ -4,11 +4,11 @@ import Bans from "../models/banModel";
 
 export default {
   name: "guildMemberAdd",
-  async execute(client: Client, guildMember: GuildMember) {
+  async execute(_: Client, guildMember: GuildMember) {
     const { user } = guildMember;
 
     // Check if user is banned on join, if so, give ban role back.
-    const isBanned = await Bans.findOne({ userId: user.id, active: true });
+    const isBanned = await Bans.findOne({ "user.id": user.id, active: true });
     if (isBanned) {
       // Update user's ban.
       await Bans.findOneAndUpdate(

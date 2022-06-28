@@ -200,7 +200,7 @@ module.exports = {
         const warn = activeWarns[x];
         banEmbed.addField(
           `Varoitus ${x + 1}`,
-          `**${warn.authorName}** varoitti syystä: **${
+          `**${warn.author.username}** varoitti syystä: **${
             warn.reason
           }** (${`<t:${epochConverter(warn.createdAt)}:R>`})`
         );

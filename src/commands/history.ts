@@ -63,9 +63,9 @@ export default {
     const totalMutes = (await Mutes.find({ userId: user.id }).lean())?.map(
       (item) => Object.assign({}, item, { type: infractionTypes[2] })
     );
-    const activeBans = totalBans.filter((ban) => ban.active);
-    const activeWarns = totalWarns.filter((warn) => warn.active);
-    const activeMutes = totalMutes.filter((mute) => mute.active);
+    const activeBans = totalBans.filter((ban) => ban.expiration.active);
+    const activeWarns = totalWarns.filter((warn) => warn.expiration.active);
+    const activeMutes = totalMutes.filter((mute) => mute.expiration.active);
 
     if (
       (!totalBans && !totalWarns && !totalMutes) ||
@@ -81,7 +81,9 @@ export default {
 
     // Combine totalBans and totalWarns into one array and sort it by date
     const combinedInfractions = [...totalBans, ...totalWarns, ...totalMutes];
-    combinedInfractions.sort((a, b) => b.createdAt - a.createdAt);
+    combinedInfractions.sort(
+      (a, b) => b.createdAt.getTime() - a.createdAt.getTime()
+    );
 
     const historyEmbed = new MessageEmbed()
       .setColor(config.COLORS.SUCCESS)
@@ -120,7 +122,7 @@ export default {
       for (let x = 0; x < activeWarns.length; x++) {
         const warn = activeWarns[x];
         activeWarnsFormatted.push(
-          `\`\`\`yaml\n${x + 1}: ${warn.authorName} varoitti syystä "${
+          `\`\`\`yaml\n${x + 1}: ${warn.author.username} varoitti syystä "${
             warn.reason
           }" # (${`${daysAgo(warn.createdAt)}`})\`\`\``
         );
@@ -143,8 +145,8 @@ export default {
         name: "Aktiivinen mykistys",
         value: `${
           activeMutes.length > 0
-            ? activeMutes[0]?.length
-              ? `Kyllä (_${activeMutes[0].length} päivää_)`
+            ? activeMutes[0]?.expiration.length
+              ? `Kyllä (_${activeMutes[0].expiration.length} päivää_)`
               : "__Ikuinen__"
             : "Ei"
         }`,
@@ -164,8 +166,8 @@ export default {
         name: "Aktiivinen porttikielto",
         value: `${
           activeBans.length > 0
-            ? activeBans[0]?.length
-              ? `Kyllä (_${activeBans[0].length} päivää_)`
+            ? activeBans[0]?.expiration.length
+              ? `Kyllä (_${activeBans[0].expiration.length} päivää_)`
               : "__Ikuinen__"
             : "Ei"
         }`,
@@ -177,14 +179,14 @@ export default {
       historyEmbed.addFields([
         {
           name: "Porttikielto vanhenee",
-          value: activeBans[0].expiresAt
-            ? `<t:${epochConverter(activeBans[0].expiresAt)}:R>`
+          value: activeBans[0].expiration.expiresAt
+            ? `<t:${epochConverter(activeBans[0].expiration.expiresAt)}:R>`
             : "__Ikuinen__",
           inline: true
         },
         {
           name: "Porttikiellon antaja",
-          value: `${activeBans[0].authorName}`,
+          value: `${activeBans[0].author.username}`,
           inline: true
         },
         {
@@ -200,7 +202,9 @@ export default {
     combinedInfractions.forEach((infraction, index) => {
       const infinfractionsEmbed = new MessageEmbed()
         .setColor(
-          infraction.active ? config.COLORS.SUCCESS : config.COLORS.WARNING
+          infraction.expiration.active
+            ? config.COLORS.SUCCESS
+            : config.COLORS.WARNING
         )
         .setImage("https://i.stack.imgur.com/Fzh0w.png")
         .setAuthor({
@@ -211,7 +215,7 @@ export default {
           iconURL: client.user?.displayAvatarURL()
         })
         .setDescription(
-          `Käyttäjälle **${infraction.username}** on myönnetty ${infraction.type}!`
+          `Käyttäjälle **${infraction.user.username}** on myönnetty ${infraction.type}!`
         )
         .setFooter({
           text: interaction.user.username,
@@ -219,11 +223,15 @@ export default {
         })
         .setTimestamp()
         .addFields([
-          { name: "Käyttäjä", value: `${infraction.username}`, inline: true },
+          {
+            name: "Käyttäjä",
+            value: `${infraction.user.username}`,
+            inline: true
+          },
           { name: "Syynä", value: `${infraction.reason}`, inline: true },
           {
             name: "Rankaisija",
-            value: `${infraction.authorName}`,
+            value: `${infraction.author.username}`,
             inline: true
           },
           {
@@ -234,8 +242,8 @@ export default {
           infraction.type === "porttikielto" || infraction.type === "mykistys"
             ? {
                 name: "Kesto",
-                value: infraction.length
-                  ? `${infraction.length} päivää`
+                value: infraction.expiration.length
+                  ? `${infraction.expiration.length} päivää`
                   : "**Ikuinen**",
                 inline: true
               }
@@ -244,22 +252,24 @@ export default {
                 value: `${config.WARN_EXPIRES} päivää`,
                 inline: true
               },
-          infraction.length && infraction.removedType !== "manual"
+          infraction.expiration.length && !infraction.expiration.removedBy
             ? {
                 name: "Vanhenee",
-                value: `<t:${epochConverter(infraction.expiresAt)}:R>`,
+                value: `<t:${epochConverter(
+                  infraction.expiration.expiresAt as Date
+                )}:R>`,
                 inline: true
               }
             : { name: "\u200B", value: `\u200B`, inline: true }
         ]);
-      if (infraction.removedType === "manual") {
+      if (infraction.expiration.removedBy) {
         infinfractionsEmbed
           .addField(
             "Poistettu manuaalisesti",
-            `<t:${epochConverter(infraction.removedAt)}:R>`,
+            `<t:${epochConverter(infraction.expiration.removedAt as Date)}:R>`,
             true
           )
-          .addField("Poistaja", `${infraction.removedBy}`, true)
+          .addField("Poistaja", `${infraction.expiration.removedBy}`, true)
           .addField("\u200B", "\u200B", true);
       }
       infinfractionsEmbeds.push(infinfractionsEmbed);

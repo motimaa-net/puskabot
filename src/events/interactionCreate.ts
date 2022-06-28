@@ -75,25 +75,27 @@ export default {
             { name: "Syynä", value: `${banDetails.reason}`, inline: true },
             {
               name: "Rankaisija",
-              value: `${banDetails.authorName}`,
+              value: `${banDetails.author.username}`,
               inline: true
             },
             {
               name: "Annettu",
-              value: `<t:${epochConverter(banDetails.createdAt)}:R>`,
+              value: `<t:${epochConverter(banDetails.createdAt as Date)}:R>`,
               inline: true
             },
             {
               name: "Kesto",
-              value: banDetails.length
-                ? `${banDetails.length} päivää`
+              value: banDetails.expiration.length
+                ? `${banDetails.expiration.length} päivää`
                 : "**Ikuinen**",
               inline: true
             },
-            banDetails.length
+            banDetails.expiration.length
               ? {
                   name: "Loppuu",
-                  value: `<t:${epochConverter(banDetails.expiresAt)}:R>`,
+                  value: `<t:${epochConverter(
+                    banDetails.expiration.expiresAt as Date
+                  )}:R>`,
                   inline: true
                 }
               : { name: "\u200B", value: `\u200B`, inline: true }

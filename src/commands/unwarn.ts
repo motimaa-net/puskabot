@@ -102,7 +102,7 @@ export default {
       {
         $set: {
           active: false,
-          removedType: "manual",
+          removedType: "removed",
           removedAt: new Date(),
           removedBy: interaction.user.tag
         }
