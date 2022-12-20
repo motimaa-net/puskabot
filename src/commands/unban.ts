@@ -1,9 +1,7 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
 import {
   Client,
-  CommandInteraction,
-  GuildMember,
-  MessageEmbed
+  CommandInteraction, EmbedBuilder, GuildMember
 } from "discord.js";
 import { config } from "../config";
 import Bans from "../models/banModel";
@@ -29,13 +27,15 @@ export default {
     ),
 
   async execute(client: Client, interaction: CommandInteraction) {
+    if (!interaction.isChatInputCommand()) return;
+
     const user = interaction.options.getUser("käyttäjä", true);
-    const member = interaction.options.getMember("käyttäjä", true);
+    const member = interaction.options.getMember("käyttäjä");
     const silent = interaction.options.getBoolean("hiljainen", true);
 
     if (!(member instanceof GuildMember)) return;
 
-    const errorEmbedBase = new MessageEmbed()
+    const errorEmbedBase = new EmbedBuilder()
       .setColor(config.COLORS.ERROR)
       .setImage("https://i.stack.imgur.com/Fzh0w.png")
       .setAuthor({
@@ -77,7 +77,7 @@ export default {
       }
     );
 
-    const unbanEmbed = new MessageEmbed()
+    const unbanEmbed = new EmbedBuilder()
       .setColor(config.COLORS.SUCCESS)
       .setImage("https://i.stack.imgur.com/Fzh0w.png")
       .setAuthor({

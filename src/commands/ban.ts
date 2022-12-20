@@ -1,11 +1,9 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
 import {
   Client,
-  CommandInteraction,
-  GuildMember,
+  CommandInteraction, EmbedBuilder, GuildMember,
   HexColorString,
-  MessageEmbed,
-  Permissions
+  PermissionsBitField
 } from "discord.js";
 import { config } from "../config";
 import Bans from "../models/banModel";
@@ -63,8 +61,11 @@ export default {
     ),
 
   async execute(client: Client, interaction: CommandInteraction) {
+
+    if (!interaction.isChatInputCommand()) return;
+
     const user = interaction.options.getUser("käyttäjä", true);
-    const member = interaction.options.getMember("käyttäjä", true);
+    const member = interaction.options.getMember("käyttäjä");
     const reason = interaction.options.getString("syy", true);
     const silent = interaction.options.getBoolean("hiljainen", true);
     const deleteMessages = interaction.options.getString("puhdista");
@@ -74,7 +75,7 @@ export default {
 
     if (!(member instanceof GuildMember)) return;
 
-    const errorEmbedBase = new MessageEmbed()
+    const errorEmbedBase = new EmbedBuilder()
       .setColor(config.COLORS.ERROR as HexColorString)
       .setImage("https://i.stack.imgur.com/Fzh0w.png")
       .setAuthor({
@@ -118,10 +119,10 @@ export default {
           },
           isBanned.expiresAt
             ? {
-                name: "Loppuu",
-                value: `<t:${epochConverter(isBanned.expiresAt)}:R>`,
-                inline: true
-              }
+              name: "Loppuu",
+              value: `<t:${epochConverter(isBanned.expiresAt)}:R>`,
+              inline: true
+            }
             : { name: "\u200B", value: `\u200B`, inline: true }
         ]);
       return interaction.editReply({
@@ -143,7 +144,7 @@ export default {
         embeds: [errorEmbedBase]
       });
     }
-    if (member.permissions.has(Permissions.FLAGS.ADMINISTRATOR)) {
+    if (member.permissions.has(PermissionsBitField.Flags.Administrator)) {
       errorEmbedBase.setDescription(
         `Et voi antaa porttikieltoa ylläpitäjälle!`
       );
@@ -202,7 +203,7 @@ export default {
       expiresAt: days ? expiresAt : null
     });
     await newBan.save();
-    const banEmbed = new MessageEmbed()
+    const banEmbed = new EmbedBuilder()
       .setColor(config.COLORS.SUCCESS)
       .setImage("https://i.stack.imgur.com/Fzh0w.png")
       .setAuthor({
@@ -232,10 +233,10 @@ export default {
         },
         days
           ? {
-              name: "Loppuu",
-              value: `<t:${epochConverter(expiresAt)}:R>`,
-              inline: true
-            }
+            name: "Loppuu",
+            value: `<t:${epochConverter(expiresAt)}:R>`,
+            inline: true
+          }
           : { name: "\u200B", value: `\u200B`, inline: true }
       ])
       .setFooter({

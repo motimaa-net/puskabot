@@ -1,4 +1,4 @@
-import { Client } from "discord.js";
+import { ActivityType, Client } from "discord.js";
 import cron from "node-cron";
 import { config } from "../config";
 import Bans from "../models/banModel";
@@ -168,7 +168,7 @@ export const precenceUpdater = (client: Client) => {
     const memberCount = members?.filter((member) => !member.user.bot).size;
 
     return client.user?.setActivity(`${memberCount ?? 0} käyttäjää`, {
-      type: "WATCHING"
+      type: ActivityType.Watching
     });
   };
   try {

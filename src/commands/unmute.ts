@@ -1,9 +1,7 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
 import {
   Client,
-  CommandInteraction,
-  GuildMember,
-  MessageEmbed
+  CommandInteraction, EmbedBuilder, GuildMember
 } from "discord.js";
 import { config } from "../config";
 import Mutes from "../models/muteModel";
@@ -29,13 +27,14 @@ export default {
     ),
 
   async execute(client: Client, interaction: CommandInteraction) {
-    const member = interaction.options.getMember("käyttäjä", true);
+    if (!interaction.isChatInputCommand()) return;
+    const member = interaction.options.getMember("käyttäjä");
     const user = interaction.options.getUser("käyttäjä", true);
     const silent = interaction.options.getBoolean("hiljainen", true);
 
     if (!(member instanceof GuildMember)) return;
 
-    const errorEmbedBase = new MessageEmbed()
+    const errorEmbedBase = new EmbedBuilder()
       .setColor(config.COLORS.ERROR)
       .setImage("https://i.stack.imgur.com/Fzh0w.png")
       .setAuthor({
@@ -77,7 +76,7 @@ export default {
       }
     );
 
-    const unmuteEmbed = new MessageEmbed()
+    const unmuteEmbed = new EmbedBuilder()
       .setColor(config.COLORS.SUCCESS)
       .setImage("https://i.stack.imgur.com/Fzh0w.png")
       .setAuthor({

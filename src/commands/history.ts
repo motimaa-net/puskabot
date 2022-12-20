@@ -1,5 +1,5 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
-import { Client, CommandInteraction, MessageEmbed } from "discord.js";
+import { Client, CommandInteraction, EmbedBuilder } from "discord.js";
 import { config } from "../config";
 import Bans from "../models/banModel";
 import Mutes from "../models/muteModel";
@@ -26,13 +26,16 @@ export default {
     ),
 
   async execute(client: Client, interaction: CommandInteraction) {
+
+    if (!interaction.isChatInputCommand()) return;
+
     const member = interaction.options.getMember("käyttäjä");
     const user = interaction.options.getUser("käyttäjä");
-    const silent = interaction.options.getBoolean("hiljainen");
+    const silent = interaction.options.getBoolean("hiljainen", true);
 
     await interaction.deferReply({ ephemeral: silent ?? false });
 
-    const errorEmbedBase = new MessageEmbed()
+    const errorEmbedBase = new EmbedBuilder()
       .setColor(config.COLORS.ERROR)
       .setImage("https://i.stack.imgur.com/Fzh0w.png")
       .setAuthor({
@@ -83,15 +86,14 @@ export default {
     const combinedInfractions = [...totalBans, ...totalWarns, ...totalMutes];
     combinedInfractions.sort((a, b) => b.createdAt - a.createdAt);
 
-    const historyEmbed = new MessageEmbed()
+    const historyEmbed = new EmbedBuilder()
       .setColor(config.COLORS.SUCCESS)
       .setImage("https://i.stack.imgur.com/Fzh0w.png")
       .setAuthor({
-        name: `Rikehistoria tiedot ${
-          combinedInfractions.length > 0
-            ? `(1/${combinedInfractions.length + 1})`
-            : ``
-        }`,
+        name: `Rikehistoria tiedot ${combinedInfractions.length > 0
+          ? `(1/${combinedInfractions.length + 1})`
+          : ``
+          }`,
         iconURL: client.user?.displayAvatarURL()
       })
       .setDescription(`Käyttäjän **${user.tag}** rikehistoria!`)
@@ -120,16 +122,17 @@ export default {
       for (let x = 0; x < activeWarns.length; x++) {
         const warn = activeWarns[x];
         activeWarnsFormatted.push(
-          `\`\`\`yaml\n${x + 1}: ${warn.authorName} varoitti syystä "${
-            warn.reason
+          `\`\`\`yaml\n${x + 1}: ${warn.authorName} varoitti syystä "${warn.reason
           }" # (${`${daysAgo(warn.createdAt)}`})\`\`\``
         );
       }
-      historyEmbed.addField(
-        "Aktiiviset varoitukset",
-        `${activeWarnsFormatted.join("")}`,
-        false
-      );
+      historyEmbed.addFields([
+        {
+          name: "Aktiiviset varoitukset",
+          value: `${activeWarnsFormatted.join("")}`,
+          inline: false
+        }
+      ]);
     }
 
     // Mute fields
@@ -141,13 +144,12 @@ export default {
       },
       {
         name: "Aktiivinen mykistys",
-        value: `${
-          activeMutes.length > 0
-            ? activeMutes[0]?.length
-              ? `Kyllä (_${activeMutes[0].length} päivää_)`
-              : "__Ikuinen__"
-            : "Ei"
-        }`,
+        value: `${activeMutes.length > 0
+          ? activeMutes[0]?.length
+            ? `Kyllä (_${activeMutes[0].length} päivää_)`
+            : "__Ikuinen__"
+          : "Ei"
+          }`,
         inline: true
       },
       { name: "\u200B", value: `\u200B`, inline: true }
@@ -162,13 +164,12 @@ export default {
       },
       {
         name: "Aktiivinen porttikielto",
-        value: `${
-          activeBans.length > 0
-            ? activeBans[0]?.length
-              ? `Kyllä (_${activeBans[0].length} päivää_)`
-              : "__Ikuinen__"
-            : "Ei"
-        }`,
+        value: `${activeBans.length > 0
+          ? activeBans[0]?.length
+            ? `Kyllä (_${activeBans[0].length} päivää_)`
+            : "__Ikuinen__"
+          : "Ei"
+          }`,
         inline: true
       },
       { name: "\u200B", value: `\u200B`, inline: true }
@@ -198,16 +199,15 @@ export default {
     infinfractionsEmbeds.push(historyEmbed);
 
     combinedInfractions.forEach((infraction, index) => {
-      const infinfractionsEmbed = new MessageEmbed()
+      const infinfractionsEmbed = new EmbedBuilder()
         .setColor(
           infraction.active ? config.COLORS.SUCCESS : config.COLORS.WARNING
         )
         .setImage("https://i.stack.imgur.com/Fzh0w.png")
         .setAuthor({
-          name: `${
-            infraction.type.charAt(0).toUpperCase() +
+          name: `${infraction.type.charAt(0).toUpperCase() +
             infraction.type.substring(1)
-          } (${index + 2}/${combinedInfractions.length + 1})`,
+            } (${index + 2}/${combinedInfractions.length + 1})`,
           iconURL: client.user?.displayAvatarURL()
         })
         .setDescription(
@@ -233,34 +233,45 @@ export default {
           },
           infraction.type === "porttikielto" || infraction.type === "mykistys"
             ? {
-                name: "Kesto",
-                value: infraction.length
-                  ? `${infraction.length} päivää`
-                  : "**Ikuinen**",
-                inline: true
-              }
+              name: "Kesto",
+              value: infraction.length
+                ? `${infraction.length} päivää`
+                : "**Ikuinen**",
+              inline: true
+            }
             : {
-                name: "Kesto",
-                value: `${config.WARN_EXPIRES} päivää`,
-                inline: true
-              },
+              name: "Kesto",
+              value: `${config.WARN_EXPIRES} päivää`,
+              inline: true
+            },
           infraction.length && infraction.removedType !== "manual"
             ? {
-                name: "Vanhenee",
-                value: `<t:${epochConverter(infraction.expiresAt)}:R>`,
-                inline: true
-              }
+              name: "Vanhenee",
+              value: `<t:${epochConverter(infraction.expiresAt)}:R>`,
+              inline: true
+            }
             : { name: "\u200B", value: `\u200B`, inline: true }
         ]);
       if (infraction.removedType === "manual") {
         infinfractionsEmbed
-          .addField(
-            "Poistettu manuaalisesti",
-            `<t:${epochConverter(infraction.removedAt)}:R>`,
-            true
-          )
-          .addField("Poistaja", `${infraction.removedBy}`, true)
-          .addField("\u200B", "\u200B", true);
+          .addFields([
+            {
+              name: "Poistettu manuaalisesti",
+              value: `<t:${epochConverter(infraction.removedAt)}:R>`,
+              inline: true,
+            },
+            {
+              name: "Poistaja",
+              value: `${infraction.removedBy}`,
+              inline: true
+            },
+            {
+              name: "\u200B",
+              value: "\u200b",
+              inline: true
+            }
+
+          ])
       }
       infinfractionsEmbeds.push(infinfractionsEmbed);
     });

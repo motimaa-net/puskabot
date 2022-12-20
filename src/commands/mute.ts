@@ -1,9 +1,7 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
 import {
   Client,
-  CommandInteraction,
-  GuildMember,
-  MessageEmbed
+  CommandInteraction, EmbedBuilder, GuildMember
 } from "discord.js";
 import { config } from "../config";
 import Bans from "../models/banModel";
@@ -62,7 +60,9 @@ export default {
     ),
 
   async execute(client: Client, interaction: CommandInteraction) {
-    const member = interaction.options.getMember("käyttäjä", true);
+    if (!interaction.isChatInputCommand()) return;
+
+    const member = interaction.options.getMember("käyttäjä");
     const user = interaction.options.getUser("käyttäjä", true);
     const reason = interaction.options.getString("syy", true);
     const silent = interaction.options.getBoolean("hiljainen", true);
@@ -73,7 +73,7 @@ export default {
 
     if (!(member instanceof GuildMember)) return;
 
-    const errorEmbedBase = new MessageEmbed()
+    const errorEmbedBase = new EmbedBuilder()
       .setColor(config.COLORS.ERROR)
       .setImage("https://i.stack.imgur.com/Fzh0w.png")
       .setAuthor({
@@ -119,10 +119,10 @@ export default {
           },
           isBanned.expiresAt
             ? {
-                name: "Loppuu",
-                value: `<t:${epochConverter(isBanned.expiresAt)}:R>`,
-                inline: true
-              }
+              name: "Loppuu",
+              value: `<t:${epochConverter(isBanned.expiresAt)}:R>`,
+              inline: true
+            }
             : { name: "\u200B", value: `\u200B`, inline: true }
         ]);
       return interaction.editReply({
@@ -151,10 +151,10 @@ export default {
           },
           isMuted.expiresAt
             ? {
-                name: "Loppuu",
-                value: `<t:${epochConverter(isMuted.expiresAt)}:R>`,
-                inline: true
-              }
+              name: "Loppuu",
+              value: `<t:${epochConverter(isMuted.expiresAt)}:R>`,
+              inline: true
+            }
             : { name: "\u200B", value: `\u200B`, inline: true }
         ]);
       return interaction.editReply({
@@ -222,7 +222,7 @@ export default {
     });
     await newMute.save();
 
-    const muteEmbed = new MessageEmbed()
+    const muteEmbed = new EmbedBuilder()
       .setColor(config.COLORS.SUCCESS)
       .setImage("https://i.stack.imgur.com/Fzh0w.png")
       .setAuthor({

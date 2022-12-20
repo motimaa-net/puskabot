@@ -1,10 +1,15 @@
 import { REST } from "@discordjs/rest";
 import { Routes } from "discord-api-types/v9";
 import {
+<<<<<<< Updated upstream
   Client,
   MessageActionRow,
   MessageButton,
   MessageEmbed
+=======
+  ActionRowBuilder, ApplicationCommandPermissionType, ButtonBuilder, ButtonStyle, ChannelType,
+  Client, EmbedBuilder
+>>>>>>> Stashed changes
 } from "discord.js";
 import { readdirSync } from "fs";
 import mongoose from "mongoose";
@@ -72,11 +77,46 @@ export default {
         console.error(error);
       }
 
+<<<<<<< Updated upstream
+=======
+      type RolesType = ApplicationCommandPermissionType;
+
+      const roles: ApplicationCommandPermissionType[] = [];
+      const fullPermissions: { id: string; permissions: RolesType[] }[] = [];
+      const staffRoleList = config.STAFF_ROLES;
+
+      // Roles with staff roles can use slash commands
+      //for (let i = 0; i < staffRoleList.length; i += 1) {
+      //  const id = staffRoleList[i];
+      //  roles.push({
+      //    id,
+      //    type: "ROLE",
+      //    permission: true
+      //   });
+      //  }
+
+      //const registeredCommands = await client.guilds.cache
+      //  .get(config.GUILD_ID)
+      //  ?.commands.fetch();
+
+      //registeredCommands?.forEach((command) => {
+      //  fullPermissions.push({
+      //    id: command.id,
+      //    permissions: roles
+      //  });
+      //});
+
+      //await client.guilds.cache
+      //.get(config.GUILD_ID)
+      //?.commands.permissions.set({ fullPermissions });
+      console.log("\u001b[37m(4/5) Komentojen oikeudet rekisteröity.");
+
+>>>>>>> Stashed changes
       const banChannel = client.channels.cache.find(
         (channel) => channel.id === config.BAN_CHANNEL
       );
 
-      if (banChannel?.type !== "GUILD_TEXT")
+      if (banChannel?.type !== ChannelType.GuildText)
         return console.log("Invalid ban channel type!");
 
       if (!banChannel) {
@@ -86,7 +126,7 @@ export default {
       }
       // If channel is empty send ban embed to the channel
       if ((await banChannel.messages.fetch()).size === 0) {
-        const banInfoEmbed = new MessageEmbed()
+        const banInfoEmbed = new EmbedBuilder()
           .setColor(config.COLORS.SUCCESS)
           .setImage("https://i.stack.imgur.com/Fzh0w.png")
           .setAuthor({
@@ -102,12 +142,12 @@ export default {
             iconURL: client.user?.displayAvatarURL()
           })
           .setTimestamp();
-        const banButtons = new MessageActionRow().addComponents(
+        const banButtons = new ActionRowBuilder<ButtonBuilder>().addComponents(
           // eslint-disable-next-line newline-per-chained-call
-          new MessageButton()
+          new ButtonBuilder()
             .setCustomId("banInfo")
             .setLabel("Porttikielto")
-            .setStyle("DANGER")
+            .setStyle(ButtonStyle.Danger)
         );
 
         banChannel.send({ embeds: [banInfoEmbed], components: [banButtons] });
@@ -117,7 +157,7 @@ export default {
         (channel) => channel.id === config.ROLE_CHANNEL
       );
 
-      if (selfRoleChannel?.type !== "GUILD_TEXT")
+      if (selfRoleChannel?.type !== ChannelType.GuildText)
         return console.log("Invalid ban channel type!");
 
       if (!selfRoleChannel) {
@@ -129,7 +169,7 @@ export default {
       const roleRows = [];
       const requiredLoops = Math.ceil(config.SELF_ROLES.length / 5);
       for (let y = 0; y < requiredLoops; y++) {
-        const roleButtonsRow = new MessageActionRow();
+        const roleButtonsRow = new ActionRowBuilder<ButtonBuilder>();
 
         // Make roles to loop variable.
         const rolesToLoop = config.SELF_ROLES.slice(y * 5, (y + 1) * 5);
@@ -138,10 +178,10 @@ export default {
           const role = rolesToLoop[x];
           roleButtonsRow.addComponents(
             // eslint-disable-next-line newline-per-chained-call
-            new MessageButton()
+            new ButtonBuilder()
               .setCustomId(`selfRole-${role.ID}`)
               .setLabel(role.NAME)
-              .setStyle("PRIMARY")
+              .setStyle(ButtonStyle.Primary)
               .setEmoji(role.EMOJI)
           );
         }
@@ -151,7 +191,7 @@ export default {
 
       // If channel is empty send ban embed to the channel
       if ((await selfRoleChannel.messages?.fetch())?.size === 0) {
-        const banInfoEmbed = new MessageEmbed()
+        const banInfoEmbed = new EmbedBuilder()
           .setColor(config.COLORS.SUCCESS)
           .setImage("https://i.stack.imgur.com/Fzh0w.png")
           .setAuthor({
