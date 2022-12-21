@@ -12,8 +12,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-<<<<<<< Updated upstream
-=======
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.paginationHandler = void 0;
 const discord_js_pagination_1 = require("@psibean/discord.js-pagination");
@@ -136,4 +134,3 @@ const paginationHandler = (interaction, pages) => __awaiter(void 0, void 0, void
     return buttonPaginator.message;
 });
 exports.paginationHandler = paginationHandler;
->>>>>>> Stashed changes

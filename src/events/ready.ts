@@ -1,15 +1,8 @@
 import { REST } from "@discordjs/rest";
 import { Routes } from "discord-api-types/v9";
 import {
-<<<<<<< Updated upstream
-  Client,
-  MessageActionRow,
-  MessageButton,
-  MessageEmbed
-=======
-  ActionRowBuilder, ApplicationCommandPermissionType, ButtonBuilder, ButtonStyle, ChannelType,
+  ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelType,
   Client, EmbedBuilder
->>>>>>> Stashed changes
 } from "discord.js";
 import { readdirSync } from "fs";
 import mongoose from "mongoose";
@@ -77,41 +70,6 @@ export default {
         console.error(error);
       }
 
-<<<<<<< Updated upstream
-=======
-      type RolesType = ApplicationCommandPermissionType;
-
-      const roles: ApplicationCommandPermissionType[] = [];
-      const fullPermissions: { id: string; permissions: RolesType[] }[] = [];
-      const staffRoleList = config.STAFF_ROLES;
-
-      // Roles with staff roles can use slash commands
-      //for (let i = 0; i < staffRoleList.length; i += 1) {
-      //  const id = staffRoleList[i];
-      //  roles.push({
-      //    id,
-      //    type: "ROLE",
-      //    permission: true
-      //   });
-      //  }
-
-      //const registeredCommands = await client.guilds.cache
-      //  .get(config.GUILD_ID)
-      //  ?.commands.fetch();
-
-      //registeredCommands?.forEach((command) => {
-      //  fullPermissions.push({
-      //    id: command.id,
-      //    permissions: roles
-      //  });
-      //});
-
-      //await client.guilds.cache
-      //.get(config.GUILD_ID)
-      //?.commands.permissions.set({ fullPermissions });
-      console.log("\u001b[37m(4/5) Komentojen oikeudet rekisteröity.");
-
->>>>>>> Stashed changes
       const banChannel = client.channels.cache.find(
         (channel) => channel.id === config.BAN_CHANNEL
       );
