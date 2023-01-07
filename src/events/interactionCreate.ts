@@ -91,7 +91,7 @@ export default {
             banDetails.length
               ? {
                 name: "Loppuu",
-                value: `<t:${epochConverter(banDetails.expiresAt)}:R>`,
+                value: `<t:${epochConverter(banDetails.expiresAt as Date)}:R>`,
                 inline: true
               }
               : { name: "\u200B", value: `\u200B`, inline: true }

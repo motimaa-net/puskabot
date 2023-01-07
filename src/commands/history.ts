@@ -84,7 +84,7 @@ export default {
 
     // Combine totalBans and totalWarns into one array and sort it by date
     const combinedInfractions = [...totalBans, ...totalWarns, ...totalMutes];
-    combinedInfractions.sort((a, b) => b.createdAt - a.createdAt);
+    combinedInfractions.sort((a, b) => new Date(b.createdAt).valueOf() - new Date(a.createdAt).valueOf());
 
     const historyEmbed = new EmbedBuilder()
       .setColor(config.COLORS.SUCCESS)
@@ -234,8 +234,8 @@ export default {
           infraction.type === "porttikielto" || infraction.type === "mykistys"
             ? {
               name: "Kesto",
-              value: infraction.length
-                ? `${infraction.length} päivää`
+              value: Object.values(infraction).length
+                ? `${Object.values(infraction).length} päivää`
                 : "**Ikuinen**",
               inline: true
             }
@@ -244,10 +244,10 @@ export default {
               value: `${config.WARN_EXPIRES} päivää`,
               inline: true
             },
-          infraction.length && infraction.removedType !== "manual"
+          Object.values(infraction).length && infraction.removedType !== "manual"
             ? {
               name: "Vanhenee",
-              value: `<t:${epochConverter(infraction.expiresAt)}:R>`,
+              value: `<t:${epochConverter(infraction.expiresAt as Date)}:R>`,
               inline: true
             }
             : { name: "\u200B", value: `\u200B`, inline: true }
@@ -257,7 +257,7 @@ export default {
           .addFields([
             {
               name: "Poistettu manuaalisesti",
-              value: `<t:${epochConverter(infraction.removedAt)}:R>`,
+              value: `<t:${epochConverter(infraction.removedAt as Date)}:R>`,
               inline: true,
             },
             {
