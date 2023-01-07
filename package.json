@@ -20,8 +20,8 @@
     "npm": ">=7.0.0"
   },
   "dependencies": {
-    "@discordjs/builders": "^0.13.0",
-    "@discordjs/rest": "^0.4.1",
+    "@discordjs/builders": "^1.4.0",
+    "@discordjs/rest": "^1.5.0",
     "@discordjs/voice": "^0.14.0",
     "@psibean/discord.js-pagination": "^4.0.5",
     "discord-api-types": "^0.32.0",
@@ -30,8 +30,10 @@
     "node-cron": "^3.0.0"
   },
   "devDependencies": {
-    "@types/node": "^17.0.27",
+    "@types/node": "^18.11.18",
     "@types/node-cron": "^3.0.6",
+    "@typescript-eslint/eslint-plugin": "^5.48.0",
+    "@typescript-eslint/parser": "^5.48.0",
     "eslint": "^8.3.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-import": "^2.26.0",
