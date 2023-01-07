@@ -271,7 +271,7 @@ export default {
               inline: true
             }
 
-          ])
+          ]);
       }
       infinfractionsEmbeds.push(infinfractionsEmbed);
     });

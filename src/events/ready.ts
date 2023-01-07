@@ -1,18 +1,10 @@
 import { REST } from "@discordjs/rest";
 import { Routes } from "discord-api-types/v9";
-import {
-  ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelType,
-  Client, EmbedBuilder
-} from "discord.js";
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelType, Client, EmbedBuilder } from "discord.js";
 import { readdirSync } from "fs";
 import mongoose from "mongoose";
 import { config } from "../config";
-import {
-  banHandler,
-  muteHandler,
-  precenceUpdater,
-  warnHandler
-} from "../utils/cronTasks";
+import { banHandler, muteHandler, precenceUpdater, warnHandler } from "../utils/cronTasks";
 
 export default {
   name: "ready",
@@ -55,7 +47,7 @@ export default {
     }
 
     const rest = new REST({ version: "9" }).setToken(config.BOT_TOKEN);
-    (async () => {
+    await (async () => {
       // Register commands
       try {
         await rest.put(
@@ -74,8 +66,9 @@ export default {
         (channel) => channel.id === config.BAN_CHANNEL
       );
 
-      if (banChannel?.type !== ChannelType.GuildText)
+      if (banChannel?.type !== ChannelType.GuildText) {
         return console.log("Invalid ban channel type!");
+      }
 
       if (!banChannel) {
         return console.log(
@@ -115,8 +108,9 @@ export default {
         (channel) => channel.id === config.ROLE_CHANNEL
       );
 
-      if (selfRoleChannel?.type !== ChannelType.GuildText)
+      if (selfRoleChannel?.type !== ChannelType.GuildText) {
         return console.log("Invalid ban channel type!");
+      }
 
       if (!selfRoleChannel) {
         return console.log(
