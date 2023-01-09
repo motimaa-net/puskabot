@@ -85,7 +85,7 @@ export default {
           }
         }
       } else {
-        let fn = setTimeout(() => {
+        const fn = setTimeout(() => {
           usersMap.delete(m.author.id);
         }, TIME);
         usersMap.set(m.author.id, {

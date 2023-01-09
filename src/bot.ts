@@ -1,13 +1,16 @@
-import { Client, Collection, Intents } from "discord.js";
+import { Client, Collection, GatewayIntentBits, Partials } from "discord.js";
 import { readdirSync } from "fs";
 import { config } from "./config";
 
+
 const client = new Client({
+  partials: [Partials.Message, Partials.Channel, Partials.Reaction],
   intents: [
-    Intents.FLAGS.GUILDS,
-    Intents.FLAGS.GUILD_MESSAGES,
-    Intents.FLAGS.GUILD_MEMBERS
-  ]
+    GatewayIntentBits.Guilds,
+    GatewayIntentBits.GuildMessages,
+    GatewayIntentBits.MessageContent,
+    GatewayIntentBits.GuildMembers,
+  ],
 });
 
 (async () => {

@@ -1,10 +1,10 @@
-import { CommandInteraction } from "discord.js";
+import { ApplicationCommandOptionType, CommandInteraction } from "discord.js";
 
 export const logger = (interaction: CommandInteraction) => {
   const now = new Date();
   const commandArgs: string[] = [];
-  const subCommand = interaction.options.data[0]?.type === "SUB_COMMAND";
-  const member = interaction.options.getMember("käyttäjä", true);
+  const subCommand = interaction.options.data[0]?.type === ApplicationCommandOptionType.Subcommand;
+  const member = interaction.options.getMember("käyttäjä");
   const user = interaction.options.getUser("käyttäjä", true);
 
   const commandOptions = subCommand
@@ -26,11 +26,11 @@ export const logger = (interaction: CommandInteraction) => {
     .map((t) => (t.length === 1 ? `0${t}` : t))
     .join(":");
 
+  if (!interaction.isChatInputCommand()) return;
   console.log(
-    `[${timeString}] ${interaction.user.username} suoritti komennon ${
-      subCommand
-        ? `${interaction.commandName} ${interaction.options.getSubcommand()}`
-        : interaction.commandName
+    `[${timeString}] ${interaction.user.username} suoritti komennon ${subCommand
+      ? `${interaction.commandName} ${interaction.options.getSubcommand()}`
+      : interaction.commandName
     } ${commandArgs.join(" ")}`
   );
 };

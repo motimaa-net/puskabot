@@ -1,10 +1,7 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
 import {
   Client,
-  CommandInteraction,
-  GuildMember,
-  MessageEmbed,
-  Permissions
+  CommandInteraction, EmbedBuilder, GuildMember, PermissionsBitField
 } from "discord.js";
 import { config } from "../config";
 import Bans from "../models/banModel";
@@ -36,14 +33,16 @@ module.exports = {
     ),
 
   async execute(client: Client, interaction: CommandInteraction) {
-    const member = interaction.options.getMember("käyttäjä", true);
+    if (!interaction.isChatInputCommand()) return;
+
+    const member = interaction.options.getMember("käyttäjä");
     const user = interaction.options.getUser("käyttäjä", true);
     const reason = interaction.options.getString("syy", true);
     const silent = interaction.options.getBoolean("hiljainen", true);
 
     if (!(member instanceof GuildMember)) return;
 
-    const errorEmbedBase = new MessageEmbed()
+    const errorEmbedBase = new EmbedBuilder()
       .setColor(config.COLORS.ERROR)
       .setImage("https://i.stack.imgur.com/Fzh0w.png")
       .setAuthor({
@@ -79,7 +78,7 @@ module.exports = {
       errorEmbedBase.setDescription(`Et voi antaa varoitusta itsellesi!`);
       return interaction.reply({ embeds: [errorEmbedBase], ephemeral: true });
     }
-    if (member.permissions.has(Permissions.FLAGS.ADMINISTRATOR)) {
+    if (member.permissions.has(PermissionsBitField.Flags.Administrator)) {
       errorEmbedBase.setDescription(
         `Et voi antaa varoitusta tälle henkilölle!`
       );
@@ -151,7 +150,7 @@ module.exports = {
         { $set: { active: false } }
       );
 
-      const banEmbed = new MessageEmbed()
+      const banEmbed = new EmbedBuilder()
         .setColor(config.COLORS.SUCCESS)
         .setImage("https://i.stack.imgur.com/Fzh0w.png")
         .setAuthor({
@@ -189,7 +188,13 @@ module.exports = {
             inline: true
           }
         ])
-        .addField("\u200B", "\u200B", false)
+        .addFields([
+          {
+            name: "\u200B",
+            value: "\u200B",
+            inline: false
+          }
+        ])
         .setFooter({
           text: interaction.user.username,
           iconURL: interaction.user.displayAvatarURL()
@@ -198,12 +203,12 @@ module.exports = {
 
       for (let x = 0; x < activeWarns.length; x++) {
         const warn = activeWarns[x];
-        banEmbed.addField(
-          `Varoitus ${x + 1}`,
-          `**${warn.authorName}** varoitti syystä: **${
-            warn.reason
-          }** (${`<t:${epochConverter(warn.createdAt)}:R>`})`
-        );
+        banEmbed.addFields([
+          {
+            name: `Varoitus ${x + 1}`,
+            value: `**${warn.authorName}** varoitti syystä: **${warn.reason}** (${`<t:${epochConverter(warn.createdAt)}:R>`})`
+          }
+        ]);
       }
 
       interaction.reply({ embeds: [banEmbed], ephemeral: silent });
@@ -226,7 +231,7 @@ module.exports = {
         });
       return;
     }
-    const warnEmbed = new MessageEmbed()
+    const warnEmbed = new EmbedBuilder()
       .setColor(config.COLORS.SUCCESS)
       .setImage("https://i.stack.imgur.com/Fzh0w.png")
       .setAuthor({
@@ -259,11 +264,10 @@ module.exports = {
         },
         {
           name: "Aktiiviset varoitukset",
-          value: `${
-            activeWarns
-              ? `${activeWarns.length}/${config.WARN_THRESHOLD}`
-              : `0/${config.WARN_THRESHOLD}`
-          }`,
+          value: `${activeWarns
+            ? `${activeWarns.length}/${config.WARN_THRESHOLD}`
+            : `0/${config.WARN_THRESHOLD}`
+            }`,
           inline: true
         }
       ])

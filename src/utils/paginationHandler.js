@@ -3,10 +3,7 @@
 // file stays as js.
 // TODO: Fix?
 
-import {
-  ButtonPaginator,
-  PaginatorEvents
-} from "@psibean/discord.js-pagination";
+import { ButtonPaginator, PaginatorEvents } from "@psibean/discord.js-pagination";
 import { Message, MessageEmbed } from "discord.js";
 import { config } from "../config";
 

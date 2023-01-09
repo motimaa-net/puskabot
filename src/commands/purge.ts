@@ -1,9 +1,7 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
 import {
-  Client,
-  CommandInteraction,
-  GuildMember,
-  MessageEmbed
+  ChannelType, Client,
+  CommandInteraction, EmbedBuilder, GuildMember
 } from "discord.js";
 import { config } from "../config";
 
@@ -13,7 +11,7 @@ export const purgeMessages = async (
   days: number
 ): Promise<number | null> => {
   const guildTextChannels = interaction?.guild?.channels.cache.filter(
-    (c) => c.type === "GUILD_TEXT"
+    (c) => c.type === ChannelType.GuildText
   );
 
   if (!guildTextChannels) return null;
@@ -24,7 +22,7 @@ export const purgeMessages = async (
   let iteration = 0;
   for await (const c of channels) {
     const channel = c[1];
-    if (channel.type !== "GUILD_TEXT") continue;
+    if (channel.type !== ChannelType.GuildText) continue;
     await channel.messages.fetch({ limit: 100 }).then(async (messages) => {
       const messagesToDelete: string[] = [];
       const date = new Date();
@@ -100,14 +98,14 @@ export default {
     ),
 
   async execute(client: Client, interaction: CommandInteraction) {
+    if (!interaction.isChatInputCommand()) return;
     const subCommand = interaction.options.getSubcommand();
 
-    const member = interaction.options.getMember("käyttäjä", true);
+    const member = interaction.options.getMember("käyttäjä");
     const days = interaction.options.getString("aika", true);
     const silent = interaction.options.getBoolean("hiljainen", true);
 
     if (!(member instanceof GuildMember)) return;
-
     if (subCommand === "user") {
       const deleteCount = await purgeMessages(
         interaction,
@@ -116,7 +114,7 @@ export default {
       );
 
       if (deleteCount && deleteCount > 0) {
-        const purgeEmbed = new MessageEmbed()
+        const purgeEmbed = new EmbedBuilder()
           .setColor(config.COLORS.SUCCESS)
           .setImage("https://i.stack.imgur.com/Fzh0w.png")
           .setAuthor({
@@ -127,7 +125,12 @@ export default {
             // eslint-disable-next-line max-len
             `Käyttäjän **${member.user.username}** viestit ajalta ${days} päivä(ä) poistettu onnistuneesti.`
           )
-          .addField("Viestejä poistettu", `${deleteCount}kpl`)
+          .addFields([
+            {
+              name: "Viestejä poistettu",
+              value: `${deleteCount}kpl`
+            }
+          ])
           .setFooter({
             text: client.user?.username || "",
             iconURL: client.user?.displayAvatarURL()
@@ -135,7 +138,7 @@ export default {
           .setTimestamp();
         return interaction.reply({ embeds: [purgeEmbed], ephemeral: silent });
       } else {
-        const errorEmbed = new MessageEmbed()
+        const errorEmbed = new EmbedBuilder()
           .setColor(config.COLORS.ERROR)
           .setImage("https://i.stack.imgur.com/Fzh0w.png")
           .setAuthor({

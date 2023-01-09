@@ -1,4 +1,4 @@
-import { Client } from "discord.js";
+import { ActivityType, Client } from "discord.js";
 import cron from "node-cron";
 import { config } from "../config";
 import Bans from "../models/banModel";
@@ -12,7 +12,7 @@ export const banHandler = async (client: Client, isCron: boolean) => {
 
     for (let x = 0; x < activeBans.length; x++) {
       const banToCheck = activeBans[x];
-      if (banToCheck.expiresAt && banToCheck.expiresAt < Date.now()) {
+      if (banToCheck.expiresAt && banToCheck.expiresAt < new Date()) {
         expiredBans.push(banToCheck._id);
 
         // Fetch the banned user and give old roles back if user is still on server + send message to user that ban has expired
@@ -70,7 +70,7 @@ export const warnHandler = async (client: Client, isCron: boolean) => {
     const expiredWarns = [];
     for (let x = 0; x < activeWarnings.length; x++) {
       const warnToCheck = activeWarnings[x];
-      if (warnToCheck.expiresAt && warnToCheck.expiresAt < Date.now()) {
+      if (warnToCheck.expiresAt && warnToCheck.expiresAt < new Date()) {
         expiredWarns.push(warnToCheck._id);
       }
     }
@@ -106,7 +106,7 @@ export const muteHandler = async (client: Client, isCron: boolean) => {
 
     for (let x = 0; x < activeMutes.length; x++) {
       const muteToCheck = activeMutes[x];
-      if (muteToCheck.expiresAt && muteToCheck.expiresAt < Date.now()) {
+      if (muteToCheck.expiresAt && muteToCheck.expiresAt < new Date()) {
         expiredMutes.push(muteToCheck._id);
 
         // Fetch the banned user and give old roles back if user is still on server + send message to user that ban has expired
@@ -168,7 +168,7 @@ export const precenceUpdater = (client: Client) => {
     const memberCount = members?.filter((member) => !member.user.bot).size;
 
     return client.user?.setActivity(`${memberCount ?? 0} käyttäjää`, {
-      type: "WATCHING"
+      type: ActivityType.Watching
     });
   };
   try {

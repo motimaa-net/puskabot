@@ -1,10 +1,8 @@
 import {
   Client,
-  DiscordAPIError,
-  GuildMember,
+  DiscordAPIError, EmbedBuilder, GuildMember,
   Interaction,
-  MessageEmbed,
-  Permissions
+  PermissionsBitField
 } from "discord.js";
 import { config } from "../config";
 import Bans from "../models/banModel";
@@ -18,7 +16,7 @@ export default {
     if (interaction.isCommand()) {
       if (
         !(interaction?.member as GuildMember)?.permissions?.has(
-          Permissions.FLAGS.MANAGE_MESSAGES
+          PermissionsBitField.Flags.ManageMessages
         )
       ) {
         return;
@@ -58,7 +56,7 @@ export default {
             ephemeral: true
           });
         }
-        const banInfoEmbed = new MessageEmbed()
+        const banInfoEmbed = new EmbedBuilder()
           .setColor(config.COLORS.SUCCESS)
           .setImage("https://i.stack.imgur.com/Fzh0w.png")
           .setAuthor({
@@ -92,10 +90,10 @@ export default {
             },
             banDetails.length
               ? {
-                  name: "Loppuu",
-                  value: `<t:${epochConverter(banDetails.expiresAt)}:R>`,
-                  inline: true
-                }
+                name: "Loppuu",
+                value: `<t:${epochConverter(banDetails.expiresAt as Date)}:R>`,
+                inline: true
+              }
               : { name: "\u200B", value: `\u200B`, inline: true }
           ])
           .setFooter({

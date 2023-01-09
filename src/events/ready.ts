@@ -1,20 +1,10 @@
 import { REST } from "@discordjs/rest";
 import { Routes } from "discord-api-types/v9";
-import {
-  Client,
-  MessageActionRow,
-  MessageButton,
-  MessageEmbed
-} from "discord.js";
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelType, Client, EmbedBuilder } from "discord.js";
 import { readdirSync } from "fs";
 import mongoose from "mongoose";
 import { config } from "../config";
-import {
-  banHandler,
-  muteHandler,
-  precenceUpdater,
-  warnHandler
-} from "../utils/cronTasks";
+import { banHandler, muteHandler, precenceUpdater, warnHandler } from "../utils/cronTasks";
 
 export default {
   name: "ready",
@@ -57,7 +47,7 @@ export default {
     }
 
     const rest = new REST({ version: "9" }).setToken(config.BOT_TOKEN);
-    (async () => {
+    await (async () => {
       // Register commands
       try {
         await rest.put(
@@ -76,8 +66,9 @@ export default {
         (channel) => channel.id === config.BAN_CHANNEL
       );
 
-      if (banChannel?.type !== "GUILD_TEXT")
+      if (banChannel?.type !== ChannelType.GuildText) {
         return console.log("Invalid ban channel type!");
+      }
 
       if (!banChannel) {
         return console.log(
@@ -86,7 +77,7 @@ export default {
       }
       // If channel is empty send ban embed to the channel
       if ((await banChannel.messages.fetch()).size === 0) {
-        const banInfoEmbed = new MessageEmbed()
+        const banInfoEmbed = new EmbedBuilder()
           .setColor(config.COLORS.SUCCESS)
           .setImage("https://i.stack.imgur.com/Fzh0w.png")
           .setAuthor({
@@ -102,12 +93,12 @@ export default {
             iconURL: client.user?.displayAvatarURL()
           })
           .setTimestamp();
-        const banButtons = new MessageActionRow().addComponents(
+        const banButtons = new ActionRowBuilder<ButtonBuilder>().addComponents(
           // eslint-disable-next-line newline-per-chained-call
-          new MessageButton()
+          new ButtonBuilder()
             .setCustomId("banInfo")
             .setLabel("Porttikielto")
-            .setStyle("DANGER")
+            .setStyle(ButtonStyle.Danger)
         );
 
         banChannel.send({ embeds: [banInfoEmbed], components: [banButtons] });
@@ -117,8 +108,9 @@ export default {
         (channel) => channel.id === config.ROLE_CHANNEL
       );
 
-      if (selfRoleChannel?.type !== "GUILD_TEXT")
+      if (selfRoleChannel?.type !== ChannelType.GuildText) {
         return console.log("Invalid ban channel type!");
+      }
 
       if (!selfRoleChannel) {
         return console.log(
@@ -129,7 +121,7 @@ export default {
       const roleRows = [];
       const requiredLoops = Math.ceil(config.SELF_ROLES.length / 5);
       for (let y = 0; y < requiredLoops; y++) {
-        const roleButtonsRow = new MessageActionRow();
+        const roleButtonsRow = new ActionRowBuilder<ButtonBuilder>();
 
         // Make roles to loop variable.
         const rolesToLoop = config.SELF_ROLES.slice(y * 5, (y + 1) * 5);
@@ -138,10 +130,10 @@ export default {
           const role = rolesToLoop[x];
           roleButtonsRow.addComponents(
             // eslint-disable-next-line newline-per-chained-call
-            new MessageButton()
+            new ButtonBuilder()
               .setCustomId(`selfRole-${role.ID}`)
               .setLabel(role.NAME)
-              .setStyle("PRIMARY")
+              .setStyle(ButtonStyle.Primary)
               .setEmoji(role.EMOJI)
           );
         }
@@ -151,7 +143,7 @@ export default {
 
       // If channel is empty send ban embed to the channel
       if ((await selfRoleChannel.messages?.fetch())?.size === 0) {
-        const banInfoEmbed = new MessageEmbed()
+        const banInfoEmbed = new EmbedBuilder()
           .setColor(config.COLORS.SUCCESS)
           .setImage("https://i.stack.imgur.com/Fzh0w.png")
           .setAuthor({

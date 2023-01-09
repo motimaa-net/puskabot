@@ -1,10 +1,7 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
 import {
   Client,
-  CommandInteraction,
-  GuildMember,
-  MessageEmbed,
-  Permissions
+  CommandInteraction, EmbedBuilder, GuildMember, PermissionsBitField
 } from "discord.js";
 import { config } from "../config";
 import Warns from "../models/warnModel";
@@ -34,14 +31,16 @@ export default {
     ),
 
   async execute(client: Client, interaction: CommandInteraction) {
-    const member = interaction.options.getMember("käyttäjä", true);
+    if (!interaction.isChatInputCommand()) return;
+
+    const member = interaction.options.getMember("käyttäjä");
     const user = interaction.options.getUser("käyttäjä", true);
     const reason = interaction.options.getString("syy", true);
     const silent = interaction.options.getBoolean("hiljainen", true);
 
     if (!(member instanceof GuildMember)) return;
 
-    const errorEmbedBase = new MessageEmbed()
+    const errorEmbedBase = new EmbedBuilder()
       .setColor(config.COLORS.ERROR)
       .setImage("https://i.stack.imgur.com/Fzh0w.png")
       .setAuthor({
@@ -70,7 +69,7 @@ export default {
       errorEmbedBase.setDescription(`Et voi poistaa varoitusta itseltäsi!`);
       return interaction.reply({ embeds: [errorEmbedBase], ephemeral: true });
     }
-    if (member.permissions.has(Permissions.FLAGS.ADMINISTRATOR)) {
+    if (member.permissions.has(PermissionsBitField.Flags.Administrator)) {
       errorEmbedBase.setDescription(
         `Tällä henkilöllä ei voi olla varoituksia!`
       );
@@ -111,7 +110,7 @@ export default {
     // New active warnings
     await activeWarnings.shift();
 
-    const unwarnEmbed = new MessageEmbed()
+    const unwarnEmbed = new EmbedBuilder()
       .setColor(config.COLORS.SUCCESS)
       .setImage("https://i.stack.imgur.com/Fzh0w.png")
       .setAuthor({
